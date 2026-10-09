@@ -12,10 +12,44 @@ namespace HoldSpeak.App;
 internal static class Program
 {
     internal static bool SmokeTest;
+    internal static InputMethodInfo[] ListInputMethods()
+    {
+#if WINDOWS
+        return WindowsInputMethods.List();
+#else
+        return MacInputMethods.List();
+#endif
+    }
+    internal static InputMethodInfo? CurrentInputMethod()
+    {
+#if WINDOWS
+        return WindowsInputMethods.Current();
+#else
+        return MacInputMethods.Current();
+#endif
+    }
     [STAThread]
     public static int Main(string[] args)
     {
         SmokeTest = args.Contains("--smoke-test");
+#if WINDOWS
+        if (args.Contains("--benchmark-input-method"))
+        {
+            Console.OutputEncoding = new UTF8Encoding(false);
+            var samples = new List<double>(); InputMethodInfo? input = null;
+            for (int i = 0; i < 21; i++)
+            {
+                var watch = System.Diagnostics.Stopwatch.StartNew(); input = WindowsInputMethods.Current();
+                if (i > 0) samples.Add(watch.Elapsed.TotalMilliseconds);
+            }
+            samples.Sort(); Console.WriteLine(JsonSerializer.Serialize(new { input, samples = samples.Count, medianMs = samples[10], p95Ms = samples[18], maxMs = samples[19] }, ConfigurationStore.Json)); return 0;
+        }
+        if (args.Contains("--inspect-input-method"))
+        {
+            Console.OutputEncoding = new UTF8Encoding(false);
+            Console.WriteLine(JsonSerializer.Serialize(WindowsInputMethods.Inspect(), ConfigurationStore.Json)); return 0;
+        }
+#endif
         if (args.Contains("--benchmark-startup"))
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();

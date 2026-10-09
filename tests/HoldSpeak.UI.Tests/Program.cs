@@ -20,7 +20,7 @@ AppBuilder.Configure<DesktopApp>().UseHeadless(new() { UseHeadlessDrawing = fals
 Brand.Export(Path.GetFullPath("branding"));
 ApplicationOption[] applicationOptions = [new("test.exe", "Test application"), new("chrome.exe", "Chrome")];
 bool listFailure = false;
-var window = new MainWindow(() => new LifecyclePlatform(), () => listFailure ? throw new IOException("fixture failure") : applicationOptions); window.Show(); Pump();
+var window = CreateWindow(() => new LifecyclePlatform(), () => listFailure ? throw new IOException("fixture failure") : applicationOptions); window.Show(); Pump();
 var tabs = window.GetVisualDescendants().OfType<TabControl>().Single();
 for (int i = 0; i < 5; i++) { tabs.SelectedIndex = i; Pump(); using var frame = window.CaptureRenderedFrame() ?? throw new Exception("No rendered frame"); frame.Save(Path.Combine(artifacts, $"tab-{i}.png")); }
 tabs.SelectedIndex = 3; Pump();
@@ -85,7 +85,7 @@ var deleteRule = window.GetVisualDescendants().OfType<Button>().Single(b => Equa
 if (HoldSpeak.Core.ConfigurationStore.Parse(File.ReadAllText(configuration)).AppRules.Length != 0) throw new Exception("App rule delete did not persist");
 window.Close();
 var platforms = new List<LifecyclePlatform>();
-var recoveryWindow = new MainWindow(() => { var p = new LifecyclePlatform(); platforms.Add(p); return p; });
+var recoveryWindow = CreateWindow(() => { var p = new LifecyclePlatform(); platforms.Add(p); return p; });
 recoveryWindow.Show(); Pump(); Drive(recoveryWindow.EnableOnStartupAsync());
 Drive(recoveryWindow.EnableOnStartupAsync());
 if (platforms.Count != 1 || platforms[0].Starts != 1) throw new Exception("First platform not started");
@@ -115,7 +115,7 @@ while (!voiceSwitch.IsEnabled && DateTime.UtcNow < switchDeadline) { Pump(); Thr
 if (voiceSwitch.IsChecked != true) throw new Exception("Mouse click did not enable voice switch");
 using (var report = System.Text.Json.JsonDocument.Parse(recoveryWindow.DiagnosticJson()))
     if (report.RootElement.GetProperty("holdMs").GetInt32() != 300) throw new Exception("Re-enable reverted active hold threshold");
-var reopenedWindow = new MainWindow(() => new LifecyclePlatform()); reopenedWindow.Show(); Pump();
+var reopenedWindow = CreateWindow(() => new LifecyclePlatform()); reopenedWindow.Show(); Pump();
 if (reopenedWindow.GetVisualDescendants().OfType<Slider>().Single().Value != 300) throw new Exception("Reopening reverted saved hold threshold");
 Drive(reopenedWindow.ShutdownAsync()); reopenedWindow.Close();
 platforms[0].Fail();
@@ -145,18 +145,51 @@ if (platforms.Count != 3) throw new Exception("User pause was overridden by reco
 Drive(recoveryWindow.ShutdownAsync()); recoveryWindow.Close();
 if (!platforms[2].Disposed) throw new Exception("Replacement platform not disposed");
 var startupPlatform = new LifecyclePlatform { FailDuringStart = true };
-var startupWindow = new MainWindow(() => startupPlatform); startupWindow.Show(); Pump();
+var startupWindow = CreateWindow(() => startupPlatform); startupWindow.Show(); Pump();
 Drive(startupWindow.EnableOnStartupAsync());
 if (!startupPlatform.Disposed || !startupWindow.GetVisualDescendants().OfType<TextBlock>().Any(t => t.Text?.StartsWith("无法启用：") == true)) throw new Exception("Startup fault was incorrectly shown as enabled");
 Drive(startupWindow.ShutdownAsync()); startupWindow.Close();
 var retryPlatforms = new List<LifecyclePlatform>();
-var retryWindow = new MainWindow(() => { var p = new LifecyclePlatform { FailDuringStart = retryPlatforms.Count == 1 }; retryPlatforms.Add(p); return p; });
+var retryWindow = CreateWindow(() => { var p = new LifecyclePlatform { FailDuringStart = retryPlatforms.Count == 1 }; retryPlatforms.Add(p); return p; });
 retryWindow.Show(); Pump(); Drive(retryWindow.EnableOnStartupAsync());
 retryPlatforms[0].Fail(); retryPlatforms[0].Resume();
 var retryDeadline = DateTime.UtcNow.AddSeconds(7);
 while ((retryPlatforms.Count < 3 || retryWindow.GetVisualDescendants().OfType<IosSwitch>().Single().IsChecked != true) && DateTime.UtcNow < retryDeadline) { Pump(); Thread.Sleep(10); }
 if (retryPlatforms.Count != 3 || !retryPlatforms[1].Disposed || retryPlatforms[2].Starts != 1) throw new Exception("Automatic recovery did not retry after transient startup failure");
 Drive(retryWindow.ShutdownAsync()); retryWindow.Close();
+InputMethodInfo wechatInput = new("wechat", "微信输入法", "wechat"), sogouInput = new("sogou", "搜狗输入法", "sogou");
+InputMethodInfo? activeInput = wechatInput;
+var routingWindow = new MainWindow(() => new LifecyclePlatform(), () => [], () => [wechatInput, sogouInput], () => activeInput);
+routingWindow.Show(); Pump();
+var discoveryDeadline = DateTime.UtcNow.AddSeconds(5);
+while (ConfigurationStore.Parse(File.ReadAllText(configuration)).InputMethodBindings.Length < 2 && DateTime.UtcNow < discoveryDeadline) { Pump(); Thread.Sleep(10); }
+var routingSettings = ConfigurationStore.Parse(File.ReadAllText(configuration));
+if (routingSettings.InputMethodBindings.Length != 2) throw new Exception("Input methods were not discovered and bound");
+string fixedProfileId = routingSettings.DefaultProfileId;
+var selection = routingWindow.GetVisualDescendants().OfType<ComboBox>().Single(c => c.ItemsSource?.OfType<string>().FirstOrDefault() == "指定快捷方式");
+selection.SelectedIndex = 1; Pump();
+var displayDeadline = DateTime.UtcNow.AddSeconds(3);
+while (!routingWindow.GetVisualDescendants().OfType<TextBlock>().Any(t => t.Text?.StartsWith("当前：微信输入法") == true) && DateTime.UtcNow < displayDeadline) { Pump(); Thread.Sleep(10); }
+if (ConfigurationStore.Parse(File.ReadAllText(configuration)).ShortcutSelection != ShortcutSelectionMode.Automatic) throw new Exception("Automatic mode not persisted");
+activeInput = sogouInput; displayDeadline = DateTime.UtcNow.AddSeconds(3);
+using (var timerLoop = new CancellationTokenSource(TimeSpan.FromMilliseconds(900))) Dispatcher.UIThread.MainLoop(timerLoop.Token);
+while (!routingWindow.GetVisualDescendants().OfType<TextBlock>().Any(t => t.Text?.StartsWith("当前：搜狗输入法") == true) && DateTime.UtcNow < displayDeadline) { Pump(); Thread.Sleep(10); }
+if (!routingWindow.GetVisualDescendants().OfType<TextBlock>().Any(t => t.Text?.StartsWith("当前：搜狗输入法") == true)) throw new Exception("Current IME display did not follow switch");
+using (var frame = routingWindow.CaptureRenderedFrame() ?? throw new Exception("No automatic mode frame")) frame.Save(Path.Combine(artifacts, "automatic-mode.png"));
+var routingTabs = routingWindow.GetVisualDescendants().OfType<TabControl>().Single(); routingTabs.SelectedIndex = 1; Pump();
+var editProfile = routingWindow.GetVisualDescendants().OfType<ComboBox>().Single(c => c.PlaceholderText == "选择要编辑的快捷键配置");
+editProfile.SelectedIndex = Array.FindIndex(routingSettings.Profiles, p => p.Id == "ime-sogou"); Pump();
+var routingKeys = routingWindow.GetVisualDescendants().OfType<TextBox>().Single(t => t.Watermark == "LCtrl, LWin");
+if (routingKeys.Text != "F2") throw new Exception("Sogou preset did not use confirmed F2");
+routingKeys.Text = "F3";
+routingWindow.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, "保存语音配置")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Pump();
+Drive(routingWindow.RefreshInputMethodsAsync());
+routingSettings = ConfigurationStore.Parse(File.ReadAllText(configuration));
+if (routingSettings.Profiles.Single(p => p.Id == "ime-sogou").WindowsKeys.Single() != Key.F3 || routingSettings.DefaultProfileId != fixedProfileId) throw new Exception("Refresh overwrote edited shortcut or fixed selection");
+using (var frame = routingWindow.CaptureRenderedFrame() ?? throw new Exception("No input mapping frame")) frame.Save(Path.Combine(artifacts, "input-method-bindings.png"));
+selection.SelectedIndex = 0; Pump();
+if (ConfigurationStore.Parse(File.ReadAllText(configuration)).ShortcutSelection != ShortcutSelectionMode.Fixed) throw new Exception("Fixed mode not persisted");
+Drive(routingWindow.ShutdownAsync()); routingWindow.Close();
 Console.WriteLine("PASS rendered 5 tabs; application refresh/select/manual preservation/empty/failure and explicit save; shortcut capture and mapping; config/profile/rule editing; fault/re-enable lifecycle and startup fault"); return 0;
 void Refresh()
 {
@@ -200,6 +233,7 @@ static void Drive(Task task)
     if (!task.IsCompleted) throw new TimeoutException("UI lifecycle timed out");
     task.GetAwaiter().GetResult(); Pump();
 }
+static MainWindow CreateWindow(Func<IDesktopPlatform> platform, Func<ApplicationOption[]>? apps = null) => new MainWindow(platform, apps, () => [], () => null);
 sealed class LifecyclePlatform : IDesktopPlatform
 {
     public bool DetectionEnabled = true;

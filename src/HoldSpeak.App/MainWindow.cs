@@ -20,6 +20,17 @@ public sealed class MainWindow : Window
     private bool running, busy, restartRequired, syncingControls;
     private readonly Func<IDesktopPlatform> createPlatform;
     private readonly Func<ApplicationOption[]> listApplications;
+    private readonly Func<InputMethodInfo[]> listInputMethods;
+    private readonly Func<InputMethodInfo?> currentInputMethod;
+    private InputMethodInfo[] inputMethods = [];
+    private string? editingProfileId;
+    private bool readingInputMethod;
+    private readonly DispatcherTimer inputMethodTimer = new() { Interval = TimeSpan.FromMilliseconds(500) };
+    private readonly ComboBox shortcutSelection = new() { ItemsSource = new[] { "指定快捷方式", "自动切换" }, MinWidth = 200 };
+    private readonly TextBlock currentMethodLabel = Label("固定使用所选快捷键", 12, "#667085");
+    private readonly ComboBox profileEditorPicker = new() { PlaceholderText = "选择要编辑的快捷键配置" };
+    private readonly ComboBox inputMethodPicker = new() { PlaceholderText = "关联输入法" };
+    private readonly Button refreshInputMethods = new() { Content = "刷新输入法" };
     private readonly TextBlock state = Label("尚未启用", 17, "#1677FF", FontWeight.SemiBold);
     private readonly TextBlock detail = Label("全局长按模式：任何位置按住左键即可触发语音。", 13, "#667085");
     private readonly TextBlock notice = Label("", 13, "#AD6800");
@@ -52,10 +63,13 @@ public sealed class MainWindow : Window
     private readonly DispatcherTimer captureTimer = new() { Interval = TimeSpan.FromSeconds(10) };
     public bool IsShuttingDown { get; private set; }
     public MainWindow() : this(Program.CreatePlatform) { }
-    public MainWindow(Func<IDesktopPlatform> createPlatform, Func<ApplicationOption[]>? listApplications = null)
+    public MainWindow(Func<IDesktopPlatform> createPlatform, Func<ApplicationOption[]>? listApplications = null,
+        Func<InputMethodInfo[]>? listInputMethods = null, Func<InputMethodInfo?>? currentInputMethod = null)
     {
         this.createPlatform = createPlatform;
         this.listApplications = listApplications ?? Program.ListApplications;
+        this.listInputMethods = listInputMethods ?? Program.ListInputMethods;
+        this.currentInputMethod = currentInputMethod ?? Program.CurrentInputMethod;
         Title = "左键说 · 按住左键说话"; Width = 1040; Height = 800; MinWidth = 900; MinHeight = 700;
         Background = Brush.Parse("#F5F7FA"); FontFamily = new FontFamily("Microsoft YaHei UI, PingFang SC, sans-serif"); FontSize = 14;
         Icon = Brand.Icon();
@@ -81,7 +95,25 @@ public sealed class MainWindow : Window
         };
         Content = BuildContent(); SyncControls();
         toggle.Click += async (_, _) => await ToggleAsync();
-        profile.SelectionChanged += (_, _) => SyncProfileFields();
+        profile.SelectionChanged += (_, _) =>
+        {
+            if (!syncingControls && profile.SelectedIndex >= 0)
+            { profileEditorPicker.SelectedIndex = profile.SelectedIndex; SyncProfileFields(); }
+        };
+        profileEditorPicker.SelectionChanged += (_, _) =>
+        {
+            if (!syncingControls && profileEditorPicker.SelectedIndex >= 0) SyncProfileFields();
+        };
+        shortcutSelection.SelectionChanged += async (_, _) =>
+        {
+            if (syncingControls || shortcutSelection.SelectedIndex < 0) return;
+            try { Save(settings with { ShortcutSelection = (ShortcutSelectionMode)shortcutSelection.SelectedIndex }); await UpdateCurrentInputMethodAsync(); }
+            catch (Exception ex) { notice.Text = "模式保存失败：" + ex.Message; }
+        };
+        refreshInputMethods.Click += async (_, _) => await RefreshInputMethodsAsync();
+        Opened += async (_, _) => { await RefreshInputMethodsAsync(); inputMethodTimer.Start(); };
+        Closed += (_, _) => inputMethodTimer.Stop();
+        inputMethodTimer.Tick += async (_, _) => { if (IsVisible) await UpdateCurrentInputMethodAsync(); };
         ruleList.SelectionChanged += (_, _) => SyncRuleFields();
         runningApps.SelectionChanged += (_, _) => { if (runningApps.SelectedItem is ApplicationOption app) ruleApp.Text = app.AppId; };
         refreshApps.Click += async (_, _) => await RefreshApplicationsAsync();
@@ -121,8 +153,10 @@ public sealed class MainWindow : Window
         hints.Children.Add(Label("按住左键  →  开始说话  →  松开结束", 12, "#667085")); hints.Children.Add(notice); Grid.SetRow(hints, 2); root.Children.Add(hints);
         var basics = new StackPanel { Spacing = 8 };
         basics.Children.Add(Label("说话方式", 18, "#101828", FontWeight.SemiBold));
-        var entry = new StackPanel { Spacing = 6 };
-        entry.Children.Add(Label("语音软件", 13, "#344054")); profile.HorizontalAlignment = HorizontalAlignment.Left; profile.Width = 360; entry.Children.Add(profile); basics.Children.Add(entry);
+        var route = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*"), ColumnSpacing = 16 };
+        var selection = new StackPanel { Spacing = 6 }; selection.Children.Add(Label("选择方式", 13, "#344054")); selection.Children.Add(shortcutSelection); route.Children.Add(selection);
+        var entry = new StackPanel { Spacing = 6 }; entry.Children.Add(Label("指定快捷键配置", 13, "#344054")); entry.Children.Add(profile); Grid.SetColumn(entry, 1); route.Children.Add(entry); basics.Children.Add(route);
+        basics.Children.Add(currentMethodLabel);
         var holdHeader = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
         holdHeader.Children.Add(Label("长按时间", 13, "#344054", FontWeight.SemiBold));
         var timeBadge = new Border { Background = Brush.Parse("#E6F4FF"), CornerRadius = new CornerRadius(6), Padding = new Thickness(10, 3), Child = holdValue }; Grid.SetColumn(timeBadge, 1); holdHeader.Children.Add(timeBadge); basics.Children.Add(holdHeader);
@@ -134,9 +168,14 @@ public sealed class MainWindow : Window
         var tip = new StackPanel { Spacing = 4 }; tip.Children.Add(Label("各应用通用", 13, "#1677FF", FontWeight.SemiBold)); tip.Children.Add(Label("文字会填入当前有光标的位置。录音与文字转换由所选语音软件完成。", 12, "#667085"));
         basics.Children.Add(new Border { Background = Brush.Parse("#F5F9FF"), CornerRadius = new CornerRadius(8), Padding = new Thickness(12, 10), Child = tip });
         var saveRow = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 12, Margin = new Thickness(0, 4, 0, 0) };
-        var save = new Button { Content = "保存设置" }; save.Classes.Add("accent"); save.Click += (_, _) => SaveBasic(); saveRow.Children.Add(save); var saveHint = Label("语音软件与拖动设置需点击保存", 12, "#667085"); saveHint.VerticalAlignment = VerticalAlignment.Center; saveRow.Children.Add(saveHint); basics.Children.Add(saveRow);
+        var save = new Button { Content = "保存设置" }; save.Classes.Add("accent"); save.Click += (_, _) => SaveBasic(); saveRow.Children.Add(save); var saveHint = Label("指定配置与拖动设置需点击保存", 12, "#667085"); saveHint.VerticalAlignment = VerticalAlignment.Center; saveRow.Children.Add(saveHint);
+        var regular = new Grid { RowDefinitions = new RowDefinitions("*,Auto") }; regular.Children.Add(new ScrollViewer { Content = basics, HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled });
+        saveRow.Margin = new Thickness(0, 12, 0, 0); Grid.SetRow(saveRow, 1); regular.Children.Add(saveRow);
         var profiles = new StackPanel { Spacing = 10 };
-        profiles.Children.Add(Label("编辑当前语音配置", 18, "#F0F5FC", FontWeight.SemiBold)); profiles.Children.Add(profileName); profiles.Children.Add(mode);
+        profiles.Children.Add(Label("输入法与快捷键", 18, "#F0F5FC", FontWeight.SemiBold)); profiles.Children.Add(profileEditorPicker);
+        var methodRow = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 8 }; methodRow.Children.Add(inputMethodPicker); Grid.SetColumn(refreshInputMethods, 1); methodRow.Children.Add(refreshInputMethods); profiles.Children.Add(methodRow);
+        profiles.Children.Add(Label("关联输入法后，自动模式会使用此配置。指定模式始终使用常规页选定的配置。", 12, "#667085"));
+        profiles.Children.Add(profileName); profiles.Children.Add(mode);
         profiles.Children.Add(Label("Windows 按键（用英文逗号分隔）", 13, "#9CAABC")); profiles.Children.Add(ShortcutRow(winKeys, false, "录入 Windows 开始"));
         profiles.Children.Add(Label("Mac 按键（需要与原软件设置一致）", 13, "#9CAABC")); profiles.Children.Add(ShortcutRow(macKeys, true, "录入 Mac 开始"));
         profiles.Children.Add(Label("单独结束按键：Windows / Mac", 13, "#9CAABC")); profiles.Children.Add(ShortcutRow(winStopKeys, false, "录入 Windows 结束")); profiles.Children.Add(ShortcutRow(macStopKeys, true, "录入 Mac 结束"));
@@ -152,8 +191,7 @@ public sealed class MainWindow : Window
         applicationPicker.Children.Add(runningApps); Grid.SetColumn(refreshApps, 1); applicationPicker.Children.Add(refreshApps); rules.Children.Add(applicationPicker);
         rules.Children.Add(Label("刷新后选择应用，自动填写下方标识；未列出的应用仍可手动填写或通过诊断获取。", 12, "#9CAABC"));
         rules.Children.Add(ruleApp); rules.Children.Add(ruleEnabled);
-        rules.Children.Add(Label("语音配置（“跟随全局”会使用常规页选择的配置）", 13, "#9CAABC")); rules.Children.Add(ruleProfile);
-        rules.Children.Add(Label("可以关闭某些应用中的长按功能，或为它选择其他语音软件。\n全局模式下不会检查输入框类型。", 13, "#9CAABC"));
+        rules.Children.Add(Label("可以关闭某些应用中的长按功能。\n指定／自动模式不会使用应用规则覆盖快捷键配置。", 13, "#9CAABC"));
         var ruleButtons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
         var saveRule = new Button { Content = "保存应用规则" }; saveRule.Click += (_, _) => SaveRule(); ruleButtons.Children.Add(saveRule);
         var deleteRule = new Button { Content = "删除应用规则" }; deleteRule.Click += (_, _) => DeleteRule(); ruleButtons.Children.Add(deleteRule); rules.Children.Add(ruleButtons);
@@ -183,7 +221,7 @@ public sealed class MainWindow : Window
         }
         Control Page(Control content) => new ScrollViewer { Content = Card(content), HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled };
         Control Nav(string icon, string name) => new TextBlock { Text = $"{icon}    {name}", Width = 128, FontSize = 13, Margin = new Thickness(8, 10), Foreground = Brush.Parse("#344054") };
-        var tabs = new TabControl { TabStripPlacement = Dock.Left, ItemsSource = new[] { new TabItem { Header = Nav("◉", "常规设置"), Content = Page(basics) }, new TabItem { Header = Nav("♫", "语音软件"), Content = Page(profiles) }, new TabItem { Header = Nav("▦", "应用规则"), Content = Page(rules) }, new TabItem { Header = Nav("≡", "高级配置"), Content = Page(advanced) }, new TabItem { Header = Nav("⌁", "诊断与帮助"), Content = Page(checks) } } };
+        var tabs = new TabControl { TabStripPlacement = Dock.Left, ItemsSource = new[] { new TabItem { Header = Nav("◉", "常规设置"), Content = Card(regular) }, new TabItem { Header = Nav("♫", "语音软件"), Content = Page(profiles) }, new TabItem { Header = Nav("▦", "应用规则"), Content = Page(rules) }, new TabItem { Header = Nav("≡", "高级配置"), Content = Page(advanced) }, new TabItem { Header = Nav("⌁", "诊断与帮助"), Content = Page(checks) } } };
         tabs.SelectionChanged += (_, _) => CancelShortcutCapture("切换页面，快捷键录入已取消。");
         Grid.SetRow(tabs, 3); root.Children.Add(tabs);
         var footer = Label($"左键说 · HoldSpeak {typeof(MainWindow).Assembly.GetName().Version?.ToString(3)}     |     © 2026 HoldSpeak contributors · MIT", 11, "#98A2B3"); footer.Margin = new Thickness(0, 12, 0, 0); Grid.SetRow(footer, 4); root.Children.Add(footer);
@@ -200,12 +238,68 @@ public sealed class MainWindow : Window
         try { return processes.Length > 0; } finally { foreach (var process in processes) process.Dispose(); }
     }
     private static Border Card(Control child) => new() { Background = Brushes.White, BorderBrush = Brush.Parse("#EAECF0"), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), Padding = new Thickness(20), Child = child };
+    public async Task RefreshInputMethodsAsync()
+    {
+        if (!refreshInputMethods.IsEnabled || IsShuttingDown) return;
+        refreshInputMethods.IsEnabled = false;
+        try
+        {
+            var found = await Task.Run(listInputMethods);
+            if (IsShuttingDown) return;
+            inputMethods = found.DistinctBy(i => i.Id).ToArray();
+            var profiles = settings.Profiles.ToList(); var bindings = settings.InputMethodBindings.ToList();
+            foreach (var input in inputMethods)
+            {
+                if (bindings.Any(b => b.InputMethodId == input.Id) || InputMethodPresets.Create(input) is not { } preset) continue;
+                var existing = profiles.FirstOrDefault(p => p.Id == preset.Id || (input.Preset == "wechat" && p.Name.Contains("微信")) || (input.Preset == "sogou" && p.Name.Contains("搜狗")));
+                if (existing == null) { existing = preset; profiles.Add(existing); }
+                bindings.Add(new() { InputMethodId = input.Id, Name = input.Name, ProfileId = existing.Id });
+            }
+            if (profiles.Count != settings.Profiles.Length || bindings.Count != settings.InputMethodBindings.Length)
+                Save(settings with { Profiles = profiles.ToArray(), InputMethodBindings = bindings.ToArray() });
+            else SyncControls();
+            await UpdateCurrentInputMethodAsync();
+        }
+        catch (Exception ex) { notice.Text = "输入法刷新失败：" + ex.Message; }
+        finally { refreshInputMethods.IsEnabled = true; }
+    }
+    private async Task UpdateCurrentInputMethodAsync()
+    {
+        if (readingInputMethod || IsShuttingDown) return;
+        if (settings.ShortcutSelection == ShortcutSelectionMode.Fixed) { currentMethodLabel.Text = "固定使用所选快捷键，不跟随输入法切换"; return; }
+        readingInputMethod = true;
+        try
+        {
+            var method = await Task.Run(currentInputMethod);
+            if (IsShuttingDown || settings.ShortcutSelection != ShortcutSelectionMode.Automatic) return;
+            var binding = settings.InputMethodBindings.FirstOrDefault(b => b.InputMethodId == method?.Id);
+            if (method == null) currentMethodLabel.Text = "当前输入法无法确认，本次不会发送快捷键";
+            else if (binding == null) currentMethodLabel.Text = $"当前：{method.Name} · 请在语音软件页关联快捷键";
+            else
+            {
+                var selected = settings.Profiles.First(p => p.Id == binding.ProfileId);
+                var keys = OperatingSystem.IsWindows() ? selected.WindowsKeys : selected.MacKeys;
+                var protocol = selected.Mode == ActivationMode.Hold ? "长按" : selected.Mode == ActivationMode.Toggle ? "按一下开始，再按一下结束" : "分别开始／结束";
+                currentMethodLabel.Text = $"当前：{method.Name} → {string.Join(" + ", keys)} · {protocol}";
+            }
+        }
+        catch { currentMethodLabel.Text = "当前输入法读取失败，本次不会发送快捷键"; }
+        finally { readingInputMethod = false; }
+    }
     private void SyncControls()
     {
         syncingControls = true;
         try
         {
         profile.ItemsSource = settings.Profiles.Select(p => p.Name).ToArray(); profile.SelectedIndex = Array.FindIndex(settings.Profiles, p => p.Id == settings.DefaultProfileId);
+        shortcutSelection.SelectedIndex = (int)settings.ShortcutSelection;
+        profile.IsEnabled = settings.ShortcutSelection == ShortcutSelectionMode.Fixed;
+        profileEditorPicker.ItemsSource = settings.Profiles.Select(p => p.Name).ToArray();
+        int editIndex = Array.FindIndex(settings.Profiles, p => p.Id == (editingProfileId ?? settings.DefaultProfileId));
+        profileEditorPicker.SelectedIndex = Math.Max(0, editIndex);
+        inputMethodPicker.ItemsSource = new[] { new InputMethodInfo("", "仅用于指定快捷方式") }.Concat(inputMethods)
+            .Concat(settings.InputMethodBindings.Where(b => inputMethods.All(i => i.Id != b.InputMethodId)).Select(b => new InputMethodInfo(b.InputMethodId, b.Name))).ToArray();
+        if (settings.ShortcutSelection == ShortcutSelectionMode.Fixed) currentMethodLabel.Text = "固定使用所选快捷键，不跟随输入法切换";
         hold.Value = settings.HoldMs; holdValue.Text = $"{settings.HoldMs} ms"; movement.Value = settings.MovementDip; releaseMouse.IsChecked = settings.ReleaseMouseOnActivate;
         editor.Text = JsonSerializer.Serialize(settings, ConfigurationStore.Json);
         SyncProfileFields();
@@ -322,8 +416,11 @@ public sealed class MainWindow : Window
     private void SyncProfileFields()
     {
         CancelShortcutCapture();
-        if (profile.SelectedIndex < 0 || profile.SelectedIndex >= settings.Profiles.Length) return;
-        var p = settings.Profiles[profile.SelectedIndex]; profileName.Text = p.Name; mode.SelectedIndex = (int)p.Mode;
+        int index = profileEditorPicker.SelectedIndex;
+        if (index < 0 || index >= settings.Profiles.Length) return;
+        var p = settings.Profiles[index]; editingProfileId = p.Id; profileName.Text = p.Name; mode.SelectedIndex = (int)p.Mode;
+        string boundId = settings.InputMethodBindings.FirstOrDefault(b => b.ProfileId == p.Id)?.InputMethodId ?? "";
+        inputMethodPicker.SelectedItem = inputMethodPicker.ItemsSource?.OfType<InputMethodInfo>().FirstOrDefault(i => i.Id == boundId);
         winKeys.Text = string.Join(", ", p.WindowsKeys); macKeys.Text = string.Join(", ", p.MacKeys);
         winStopKeys.Text = string.Join(", ", p.WindowsStopKeys); macStopKeys.Text = string.Join(", ", p.MacStopKeys);
     }
@@ -332,18 +429,25 @@ public sealed class MainWindow : Window
     {
         try
         {
-            var old = settings.Profiles[Math.Max(0, profile.SelectedIndex)];
+            var old = settings.Profiles[Math.Max(0, profileEditorPicker.SelectedIndex)];
             var p = old with { Id = add ? Guid.NewGuid().ToString("N") : old.Id, Name = profileName.Text?.Trim() ?? "", Mode = (ActivationMode)mode.SelectedIndex, WindowsKeys = ParseKeys(winKeys.Text), MacKeys = ParseKeys(macKeys.Text), WindowsStopKeys = ParseKeys(winStopKeys.Text), MacStopKeys = ParseKeys(macStopKeys.Text) };
-            Save(settings with { Profiles = add ? [..settings.Profiles, p] : settings.Profiles.Select(v => v.Id == p.Id ? p : v).ToArray(), DefaultProfileId = p.Id }); notice.Text = "语音配置已保存。";
+            var bindings = settings.InputMethodBindings.Where(b => b.ProfileId != p.Id).ToList();
+            if (inputMethodPicker.SelectedItem is InputMethodInfo { Id.Length: > 0 } input)
+            {
+                bindings.RemoveAll(b => b.InputMethodId == input.Id);
+                bindings.Add(new() { InputMethodId = input.Id, Name = input.Name, ProfileId = p.Id });
+            }
+            editingProfileId = p.Id;
+            Save(settings with { Profiles = add ? [..settings.Profiles, p] : settings.Profiles.Select(v => v.Id == p.Id ? p : v).ToArray(), InputMethodBindings = bindings.ToArray() }); notice.Text = "语音配置已保存。";
         }
         catch (Exception ex) when (ex is InvalidDataException or IOException or UnauthorizedAccessException or ArgumentException) { notice.Text = "无法保存：" + ex.Message; }
     }
     private void DeleteProfile()
     {
         if (settings.Profiles.Length <= 1) { notice.Text = "至少保留一个语音配置。"; return; }
-        var id = settings.Profiles[Math.Max(0, profile.SelectedIndex)].Id;
-        if (settings.AppRules.Any(r => r.ProfileId == id)) { notice.Text = "该配置被应用规则引用，请先修改规则。"; return; }
-        try { var remaining = settings.Profiles.Where(p => p.Id != id).ToArray(); Save(settings with { Profiles = remaining, DefaultProfileId = remaining[0].Id }); notice.Text = "语音配置已删除。"; }
+        var id = settings.Profiles[Math.Max(0, profileEditorPicker.SelectedIndex)].Id;
+        if (settings.AppRules.Any(r => r.ProfileId == id) || settings.InputMethodBindings.Any(b => b.ProfileId == id)) { notice.Text = "该配置被输入法或应用规则引用，请先解除关联。"; return; }
+        try { var remaining = settings.Profiles.Where(p => p.Id != id).ToArray(); Save(settings with { Profiles = remaining, DefaultProfileId = settings.DefaultProfileId == id ? remaining[0].Id : settings.DefaultProfileId }); notice.Text = "语音配置已删除。"; }
         catch (IOException ex) { notice.Text = "删除失败：" + ex.Message; }
     }
     private void SaveBasic()
@@ -440,7 +544,7 @@ public sealed class MainWindow : Window
             SyncSwitch(); notice.Text = s.Message;
         }
         state.Text = s.Message; detail.Text = settings.TriggerAnywhere ? "全局长按 · 不检测输入框 · 松开鼠标结束" : s.Target == null ? (settings.AllowUnconfirmedTargets ? "宽松模式：未知位置允许触发，明确不可输入的位置拒绝。" : "严格模式：只在确认可编辑的输入框内触发。") : $"控件：{s.Target.ControlType} · {s.Code}";
-        if (s.Code is "focus_changed" or "probe_timeout" or "activation_failed") notice.Text = s.Message;
+        if (s.Code is "focus_changed" or "probe_timeout" or "activation_failed" or "shortcut_unavailable") notice.Text = s.Message;
         if (s.ObservedTarget != null) detail.Text += $" · 探测：{s.ObservedTarget.Reason}";
         if (s.Code is "detecting" or "hover_ready") return;
         diagnosticLog.Add(s);
@@ -485,6 +589,7 @@ public sealed class MainWindow : Window
     public async Task ShutdownAsync()
     {
         if (IsShuttingDown) return; IsShuttingDown = true; autoResumeWanted = false;
+        inputMethodTimer.Stop();
         CancelShortcutCapture();
         if (host != null) { host.Changed -= statusHandler; host.RecoveryRequested -= recoveryHandler; await host.DisposeAsync(); host = null; }
     }

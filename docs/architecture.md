@@ -2,7 +2,7 @@
 
 ## 默认全局模式（0.1.14）
 
-`triggerAnywhere` 默认 true。鼠标按下记录手势并选择当前应用的语音配置；到长按阈值直接调用 Begin，松开调用 End。不发起 HoverRequested／ProbeRequested／ActiveRequested，启动时跳过 UIA／AX 预热，不依据控件、密码、只读、焦点、应用切换或窗口切换终止。手势移动取消、双击保留、实体键取消、最长保持、暂停与故障释放仍保留。应用规则继续决定配置及明确禁用；回填位置由原语音输入法和当前焦点决定。以下检测细节仅适用于高级 JSON 中显式关闭全局模式的兼容路径。
+`triggerAnywhere` 默认 true。鼠标按下记录手势并根据快捷方式模式选择配置；到长按阈值直接调用 Begin，松开调用 End。不发起 HoverRequested／ProbeRequested／ActiveRequested，启动时跳过 UIA／AX 预热，不依据控件、密码、只读、焦点、应用切换或窗口切换终止。手势移动取消、双击保留、实体键取消、最长保持、暂停与故障释放仍保留。应用规则仅决定明确禁用；回填位置由原语音输入法和当前焦点决定。以下检测细节仅适用于高级 JSON 中显式关闭全局模式的兼容路径。
 
 ## 模块
 
@@ -72,3 +72,11 @@ Windows 通知测试只向自身隐藏窗口投递模拟消息；钩子测试安
 Windows 的 Edit／Document 可通过可写 ValuePattern 或 TextPattern 的 IsReadOnly=false 确认。只读、混合属性和不支持属性不作为可编辑依据；整页 Document 的存在本身不能证明可输入。见 [微软 IsReadOnlyAttribute 文档](https://learn.microsoft.com/en-us/dotnet/api/system.windows.automation.textpattern.isreadonlyattribute?view=netframework-4.8.1)。
 
 Mac 在命中测试前询问前台应用是否声明 AXManualAccessibility 可写；只对声明此接口的应用设置 true，以请求其暴露辅助功能树。不会修改未声明该属性的原生应用，也不在退出时关闭其他辅助技术正在使用的树。第一次请求后若树尚未出现，返回 accessibility_enabled_retry；不跳过编辑目标复核。见 [Electron 官方辅助功能文档](https://github.com/electron/electron/blob/main/docs/tutorial/accessibility.md)。此适配仍须 Mac 实机验证。
+
+## 当前输入法路由（0.1.19）
+
+`shortcutSelection` 为 `fixed`（默认）或 `automatic`。固定模式只取 `defaultProfileId`；自动模式以 `inputMethodBindings[].inputMethodId` 精确匹配当前系统输入法，再引用 `profileId`。应用规则保留启用开关，旧 `profileId` 字段兼容解析但不参与引擎选择。未知、未映射或状态切换期间无法确认时停止本次手势，不回退到别的快捷键。
+
+Windows 读取前台线程 HKL，再查询相同语言的 TSF 活动键盘配置；按 TIP CLSID 和 profile GUID 保存稳定标识，并在返回前复查前台窗口和 HKL。本机微信与搜狗共用 HKL，必须读取活动 TSF 配置。只读取输入法标识和名称，不检查后台进程。macOS 读取 TIS 当前输入源及已启用输入源列表，使用系统输入源 ID。
+
+在长按达到阈值前复读当前输入法，一旦 Begin 成功，End 始终使用原会话配置。界面每 500ms 更新显示；状态机直接读取系统状态，不依赖界面轮询结果。快捷键编辑需要保存；模式选择立即持久化。新检测到的微信／搜狗提供可编辑初始预设；已有配置不自动覆盖。

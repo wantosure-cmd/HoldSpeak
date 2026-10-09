@@ -23,6 +23,8 @@ public sealed class MacPlatform : IDesktopPlatform
     public long ForegroundWindowId => MacNative.Foreground().Pid;
     public string PermissionStatus => MacNative.AXIsProcessTrusted() && MacNative.CGPreflightListenEventAccess() ? "辅助功能和输入监控权限已就绪" : "请授予辅助功能及输入监控权限，然后重新启动";
     public ITargetProbe Probe => probe;
+    public InputMethodInfo? CurrentInputMethod => MacInputMethods.Current();
+    public InputMethodInfo[] ListInputMethods() => MacInputMethods.List();
     public (double X, double Y) PointerPosition
     {
         get

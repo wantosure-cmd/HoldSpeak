@@ -32,6 +32,8 @@ public interface IDesktopPlatform : IDisposable
     event Action<string>? Faulted;
     event Action<string>? RecoveryRequested { add { } remove { } }
     ITargetProbe Probe { get; }
+    InputMethodInfo? CurrentInputMethod => null;
+    InputMethodInfo[] ListInputMethods() => [];
     void Start();
     void SetDetectionEnabled(bool enabled) { }
     IInputSession Begin(VoiceProfile profile, bool releaseMouse);

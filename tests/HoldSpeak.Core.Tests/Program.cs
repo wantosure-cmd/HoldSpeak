@@ -27,6 +27,40 @@ if (args is ["--lease-test-worker", var leaseDirectory, var workerMode])
 
 var tests = new (string Name, Action Run)[]
 {
+    ("指定模式忽略当前输入法和应用配置覆盖", () => {
+        var t = new Fixture(new Settings { Profiles = [new(), new() { Id = "other" }], AppRules = [new() { AppId = "editor.exe", ProfileId = "other" }] });
+        t.Platform.Input = new("sogou", "搜狗"); t.Down(); t.Engine.Tick(600);
+        Equal("default", t.Platform.LastProfile); Equal(0, t.Platform.InputReads); t.Up(700);
+    }),
+    ("自动模式按活动输入法切换并锁定当前会话", () => {
+        var t = new Fixture(AutomaticSettings()); t.Platform.Input = new("wechat", "微信"); t.Down(); t.Engine.Tick(600);
+        Equal("wechat", t.Platform.LastProfile); Equal(ActivationMode.Hold, t.Platform.LastMode);
+        t.Platform.Input = new("sogou", "搜狗"); t.Engine.Tick(700); Equal("wechat", t.Platform.LastProfile); t.Up(800); Equal(1, t.Platform.Ends);
+        t.Down(); t.Engine.Tick(600); Equal("sogou", t.Platform.LastProfile); Equal(ActivationMode.Toggle, t.Platform.LastMode); t.Up(800); Equal(2, t.Platform.Ends);
+    }),
+    ("自动模式在阈值前切换输入法时使用最新配置", () => {
+        var t = new Fixture(AutomaticSettings()); t.Platform.Input = new("wechat", "微信"); t.Down();
+        t.Platform.Input = new("sogou", "搜狗"); t.Engine.Tick(600); Equal("sogou", t.Platform.LastProfile); t.Up(800);
+    }),
+    ("自动模式未知或未映射时不回退固定快捷键", () => {
+        foreach (var input in new InputMethodInfo?[] { null, new("unknown", "未知输入法") }) {
+            var t = new Fixture(AutomaticSettings()); t.Platform.Input = input; t.Down(); t.Engine.Tick(600); Equal(0, t.Platform.Begins);
+        }
+    }),
+    ("输入法映射与模式可保存往返，旧配置默认指定模式", () => {
+        var roundtrip = ConfigurationStore.Parse(System.Text.Json.JsonSerializer.Serialize(AutomaticSettings(), ConfigurationStore.Json));
+        Equal(ShortcutSelectionMode.Automatic, roundtrip.ShortcutSelection); Equal("sogou", roundtrip.InputMethodBindings[1].ProfileId);
+        Equal(ShortcutSelectionMode.Fixed, ConfigurationStore.Parse("{}").ShortcutSelection);
+        bool rejected = false; try { (roundtrip with { InputMethodBindings = [roundtrip.InputMethodBindings[0], roundtrip.InputMethodBindings[0]] }).Validate(); } catch (InvalidDataException) { rejected = true; } Equal(true, rejected);
+        rejected = false; try { (roundtrip with { InputMethodBindings = [new() { InputMethodId = "x", Name = "x", ProfileId = "missing" }] }).Validate(); } catch (InvalidDataException) { rejected = true; } Equal(true, rejected);
+    }),
+    ("微信与搜狗预设使用独立的保持及切换协议", () => {
+        var wechat = InputMethodPresets.Create(new("wechat", "微信", "wechat"))!;
+        var sogou = InputMethodPresets.Create(new("sogou", "搜狗", "sogou"))!;
+        Equal(ActivationMode.Hold, wechat.Mode); Equal(Key.LWin, wechat.WindowsKeys[1]);
+        Equal(ActivationMode.Toggle, sogou.Mode); Equal(Key.F2, sogou.WindowsKeys.Single());
+        Equal(true, InputMethodPresets.Create(new("unknown", "未知")) == null);
+    }),
     ("300ms 全局阈值立即触发并记录快捷键发送耗时", () => {
         var t = new Fixture(new Settings { HoldMs = 300 }); Status? sent = null;
         t.Engine.Changed += s => { if (s.Code == "shortcut_held") sent = s; };
@@ -212,7 +246,7 @@ var tests = new (string Name, Action Run)[]
     ("最长保持时间到期不重复触发", () => { var t = new Fixture(); t.Down(); t.Probe(); t.Activate(); t.Engine.Tick(121000); t.Engine.Tick(122000); Equal(1, t.Platform.Begins); Equal(1, t.Platform.Ends); }),
     ("暂停先结束当前会话", () => { var t = new Fixture(); t.Down(); t.Probe(); t.Activate(); t.Engine.Configure(new() { Enabled = false }); Equal(1, t.Platform.Ends); Equal(GestureState.Suspended, t.Engine.State); }),
     ("禁用应用不会触发", () => { var t = new Fixture(new() { AppRules = [new() { AppId = "editor.exe", Enabled = false }] }); t.Down(); t.Probe(); t.Activate(); Equal(0, t.Platform.Begins); }),
-    ("按应用选择其他语音配置", () => { var t = new Fixture(new() { Profiles = [new(), new() { Id = "other", Name = "other" }], AppRules = [new() { AppId = "editor.exe", ProfileId = "other" }] }); t.Down(); t.Probe(); t.Activate(); Equal("other", t.Platform.LastProfile); }),
+    ("指定模式的旧检测路径也不被应用配置覆盖", () => { var t = new Fixture(new() { Profiles = [new(), new() { Id = "other", Name = "other" }], AppRules = [new() { AppId = "editor.exe", ProfileId = "other" }] }); t.Down(); t.Probe(); t.Activate(); Equal("default", t.Platform.LastProfile); }),
     ("启动过程中松开立刻结束", () => { var t = new Fixture(); t.Platform.ReleaseDuringBegin = true; t.Down(); t.Probe(); t.Activate(); Equal(1, t.Platform.Ends); }),
     ("注入失败本轮不重试", () => { var t = new Fixture(); t.Platform.FailBegin = true; t.Down(); t.Probe(); t.Activate(); t.Engine.Tick(2000); Equal(1, t.Platform.Begins); Equal(GestureState.AwaitRelease, t.Engine.State); }),
     ("配置拒绝重复 ID、空集合、未知字段和跨平台按键", () => {
@@ -328,6 +362,12 @@ static async Task FaultHost()
     platform.Emit(new(PointerKind.Down, 0, 0, Environment.TickCount64));
     await Task.Delay(450); Equal(1, platform.Begins);
 }
+static Settings AutomaticSettings() => new()
+{
+    ShortcutSelection = ShortcutSelectionMode.Automatic, DefaultProfileId = "wechat",
+    Profiles = [new() { Id = "wechat" }, new() { Id = "sogou", Mode = ActivationMode.Toggle, WindowsKeys = [Key.F2] }],
+    InputMethodBindings = [new() { InputMethodId = "wechat", Name = "微信", ProfileId = "wechat" }, new() { InputMethodId = "sogou", Name = "搜狗", ProfileId = "sogou" }]
+};
 static async Task StressHost(bool drag)
 {
     var platform = new FakePlatform { Left = true };
@@ -355,6 +395,10 @@ sealed class FakePlatform : IDesktopPlatform
     internal bool Left, ReleaseDuringBegin, FailBegin;
     internal string App = "editor.exe", LastProfile = "";
     internal int Begins, Ends;
+    internal InputMethodInfo? Input;
+    internal int InputReads;
+    internal ActivationMode LastMode;
+    public InputMethodInfo? CurrentInputMethod { get { InputReads++; return Input; } }
     public bool IsMac => false;
     public bool PhysicalLeftDown => Left;
     public string ForegroundAppId => App;
@@ -368,7 +412,7 @@ sealed class FakePlatform : IDesktopPlatform
     internal void Fail() => Faulted?.Invoke("test failure");
     internal void Emit(PointerEvent pointer) => Pointer?.Invoke(pointer);
     public void Start() { }
-    public IInputSession Begin(VoiceProfile profile, bool releaseMouse) { Begins++; LastProfile = profile.Id; if (FailBegin) throw new IOException("injected"); if (ReleaseDuringBegin) Left = false; return new Lease(this); }
+    public IInputSession Begin(VoiceProfile profile, bool releaseMouse) { Begins++; LastProfile = profile.Id; LastMode = profile.Mode; if (FailBegin) throw new IOException("injected"); if (ReleaseDuringBegin) Left = false; return new Lease(this); }
     public void EmergencyRelease() { }
     public void Dispose() { }
     sealed class ProbeStub : ITargetProbe

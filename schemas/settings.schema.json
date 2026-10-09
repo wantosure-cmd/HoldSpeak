@@ -61,6 +61,21 @@
       "items": {
         "$ref": "#/$defs/appRule"
       }
+    },
+    "shortcutSelection": {
+      "enum": [
+        "fixed",
+        "automatic"
+      ],
+      "type": "string",
+      "default": "fixed"
+    },
+    "inputMethodBindings": {
+      "maxItems": 100,
+      "items": {
+        "$ref": "#/$defs/inputMethodBinding"
+      },
+      "type": "array"
     }
   },
   "$defs": {
@@ -375,6 +390,29 @@
             "string",
             "null"
           ],
+          "minLength": 1
+        }
+      }
+    },
+    "inputMethodBinding": {
+      "required": [
+        "inputMethodId",
+        "name",
+        "profileId"
+      ],
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profileId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inputMethodId": {
+          "type": "string",
           "minLength": 1
         }
       }

@@ -53,15 +53,15 @@ public sealed class GestureEngine
             if (settings.TriggerAnywhere)
             {
                 origin = e; target = new(Editability.Unknown, platform.ForegroundAppId, platform.ForegroundWindowId, "", "global_hold");
-                profile = settings.Resolve(target.AppId); Generation++;
-                if (profile == null) { Finish("app_disabled", "当前应用已禁用"); return; }
+                profile = settings.ResolveShortcut(target.AppId, settings.ShortcutSelection == ShortcutSelectionMode.Automatic ? platform.CurrentInputMethod : null); Generation++;
+                if (profile == null) { Finish("shortcut_unavailable", "当前输入法未识别、未配置快捷键或应用已禁用"); return; }
                 Set(GestureState.Candidate, "hold_pending", "全局长按 · 按住左键开始说话");
                 return;
             }
             bool cached = hoverTarget != null && (Allowed(hoverTarget) || hoverTarget.Editability == Editability.NotEditable) && e.X == hoverPoint.X && e.Y == hoverPoint.Y &&
                 e.TimeMs >= hoverCompleted && e.TimeMs - hoverCompleted <= 1000 && SameApp(hoverTarget.AppId, platform.ForegroundAppId) && hoverTarget.WindowId == platform.ForegroundWindowId;
             requestContext = new(Editability.Unknown, platform.ForegroundAppId, platform.ForegroundWindowId, "", "probe_timeout");
-            origin = e; target = cached ? hoverTarget : null; profile = cached ? settings.Resolve(hoverTarget!.AppId) : null;
+            origin = e; target = cached ? hoverTarget : null; profile = cached ? settings.ResolveShortcut(hoverTarget!.AppId, settings.ShortcutSelection == ShortcutSelectionMode.Automatic ? platform.CurrentInputMethod : null) : null;
             probeComplete = cached; verifying = false; verified = false; probeStarted = e.TimeMs; Generation++;
             hoverGeneration++; hoverPending = false;
             Set(GestureState.Candidate, "detecting", "正在确认输入框");
@@ -93,7 +93,7 @@ public sealed class GestureEngine
         { Finish("focus_changed", "输入目标已改变", result); return; }
         probeComplete = true; target = result;
         if (!Allowed(result)) { Finish(result.Reason, result.Editability == Editability.NotEditable ? "当前位置明确不可输入" : "未确认可编辑输入框"); return; }
-        profile = settings.Resolve(result.AppId);
+        profile = settings.ResolveShortcut(result.AppId, settings.ShortcutSelection == ShortcutSelectionMode.Automatic ? platform.CurrentInputMethod : null);
         if (profile == null) Finish("app_disabled", "当前应用已禁用");
         if (verifying) verified = true;
     }
@@ -140,6 +140,11 @@ public sealed class GestureEngine
                 Set(GestureState.Activating, "activating", "正在保持快捷键");
                 try
                 {
+                    if (settings.ShortcutSelection == ShortcutSelectionMode.Automatic)
+                    {
+                        profile = settings.ResolveShortcut(target!.AppId, platform.CurrentInputMethod);
+                        if (profile == null) { Finish("shortcut_unavailable", "当前输入法未配置快捷键"); return; }
+                    }
                     session = platform.Begin(profile, settings.ReleaseMouseOnActivate);
                     if (!platform.PhysicalLeftDown) { Finish("released", "鼠标已松开"); return; }
                     activeSince = nowMs; lastActiveProbe = nowMs; activeProbePending = false; Set(GestureState.Holding, "shortcut_held", target!.Editability == Editability.Unknown ? "快捷键保持中 · 未确认输入框，按宽松模式触发" : "快捷键保持中 · 松开鼠标结束");
@@ -200,6 +205,11 @@ public sealed class GestureEngine
     private void ClearHover() { hoverGeneration++; hoverPending = false; hoverTarget = null; }
     private void Activate(long nowMs)
     {
+        if (settings.ShortcutSelection == ShortcutSelectionMode.Automatic)
+        {
+            profile = settings.ResolveShortcut(target!.AppId, platform.CurrentInputMethod);
+            if (profile == null) { Finish("shortcut_unavailable", "当前输入法未配置快捷键，请到语音软件页设置"); return; }
+        }
         Set(GestureState.Activating, "activating", "正在保持快捷键");
         try
         {

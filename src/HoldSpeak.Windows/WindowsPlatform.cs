@@ -31,6 +31,8 @@ public sealed class WindowsPlatform : IDesktopPlatform
     public long ForegroundWindowId => Native.GetForegroundWindow().ToInt64();
     public string PermissionStatus => "普通权限运行；管理员应用需要另行验证";
     public ITargetProbe Probe => probe;
+    public InputMethodInfo? CurrentInputMethod => WindowsInputMethods.Current();
+    public InputMethodInfo[] ListInputMethods() => WindowsInputMethods.List();
     public (double X, double Y) PointerPosition
     {
         get { if (!Native.GetCursorPos(out var point)) throw new InvalidOperationException("无法获取鼠标位置。"); return (point.X, point.Y); }

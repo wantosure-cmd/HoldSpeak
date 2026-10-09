@@ -45,6 +45,8 @@ public sealed record Settings
     public bool AllowUnconfirmedTargets { get; init; } = true;
     public bool TriggerAnywhere { get; init; } = true;
     public string DefaultProfileId { get; init; } = "default";
+    public ShortcutSelectionMode ShortcutSelection { get; init; } = ShortcutSelectionMode.Fixed;
+    public InputMethodBinding[] InputMethodBindings { get; init; } = [];
     public VoiceProfile[] Profiles { get; init; } = [new()];
     public AppRule[] AppRules { get; init; } = [];
 
@@ -53,6 +55,10 @@ public sealed record Settings
         if (Profiles == null || AppRules == null || string.IsNullOrWhiteSpace(DefaultProfileId) || Profiles.Any(p => p == null) || AppRules.Any(r => r == null))
             throw new InvalidDataException("配置集合不能为空。");
         if (SchemaVersion != 1) throw new InvalidDataException("不支持的配置版本。");
+        if (!Enum.IsDefined(ShortcutSelection) || InputMethodBindings == null || InputMethodBindings.Length > 100 ||
+            InputMethodBindings.Any(b => b == null || string.IsNullOrWhiteSpace(b.InputMethodId) || string.IsNullOrWhiteSpace(b.Name) || !Profiles.Any(p => p.Id == b.ProfileId)) ||
+            InputMethodBindings.Select(b => b.InputMethodId).Distinct(StringComparer.Ordinal).Count() != InputMethodBindings.Length)
+            throw new InvalidDataException("输入法映射无效、重复或引用了不存在的快捷键配置。");
         if (HoldMs is < 300 or > 1500 || MovementDip is < 2 or > 40 || ProbeTimeoutMs is < 50 or > 1000)
             throw new InvalidDataException("长按、移动容差或探测超时超出允许范围。");
         if (Profiles.Length is < 1 or > 100 || Profiles.Any(p => string.IsNullOrWhiteSpace(p.Id)) ||
@@ -91,6 +97,14 @@ public sealed record Settings
         var rule = AppRules.FirstOrDefault(r => string.Equals(r.AppId, appId, StringComparison.OrdinalIgnoreCase));
         if (rule is { Enabled: false }) return null;
         return Profiles.First(p => p.Id == (rule?.ProfileId ?? DefaultProfileId));
+    }
+    public VoiceProfile? ResolveShortcut(string appId, InputMethodInfo? inputMethod)
+    {
+        if (AppRules.Any(r => !r.Enabled && r.AppId.Equals(appId, StringComparison.OrdinalIgnoreCase))) return null;
+        // Application overrides must not defeat the user's fixed shortcut or IME choice.
+        if (ShortcutSelection == ShortcutSelectionMode.Fixed) return Profiles.First(p => p.Id == DefaultProfileId);
+        var binding = InputMethodBindings.FirstOrDefault(b => b.InputMethodId == inputMethod?.Id);
+        return binding == null ? null : Profiles.First(p => p.Id == binding.ProfileId);
     }
 }
 
