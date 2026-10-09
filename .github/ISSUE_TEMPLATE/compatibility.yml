@@ -1,0 +1,29 @@
+name: 输入框兼容性 / Compatibility
+description: 提交新应用适配需求或真实设备验证结果
+title: "[Compatibility] "
+body:
+  - type: input
+    id: environment
+    attributes:
+      label: 系统、目标应用及 HoldSpeak 版本
+    validations:
+      required: true
+  - type: input
+    id: position
+    attributes:
+      label: 具体输入位置
+      description: 例如主聊天编辑器、搜索框或地址栏，不需要具体聊天内容或网址。
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: 检查结果和实际录音结果
+      description: 分别说明输入框识别、长按开始、持续录音、松开结束、文字回填和普通拖选；未验证项请标注。
+    validations:
+      required: true
+  - type: textarea
+    id: counterexamples
+    attributes:
+      label: 不应触发的位置
+      description: 例如同应用只读文本、按钮、密码框和建议列表。只提供控件类型与结果，不提交私人信息。

@@ -1,0 +1,45 @@
+name: 问题报告 / Bug report
+description: 长按触发、提前中断、快捷键释放或界面问题
+title: "[Bug] "
+body:
+  - type: input
+    id: environment
+    attributes:
+      label: 系统与 HoldSpeak 版本
+      description: 例如 Windows 11、HoldSpeak 0.1.6；Mac 请填写芯片类型。
+    validations:
+      required: true
+  - type: input
+    id: voice_app
+    attributes:
+      label: 语音软件、版本及快捷键协议
+      description: 填写快捷键和保持／切换／独立结束方式，不要上传完整私人配置。
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: 目标应用与输入位置
+      description: 例如 Chrome 地址栏、微信聊天输入框；不要填写具体网址、聊天对象或正文。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤、预期与实际结果
+      description: 说明普通点击／拖选是否正常，何时中断，松开后是否结束录音，以及原软件快捷键能否正常使用。
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: 诊断报告或拒绝原因（可选）
+      description: 可附上“诊断”页导出的 JSON。先查看文件；报告包含应用标识、系统版本和时间。不需要提供语音、屏幕截图、正文或私人配置。
+  - type: checkboxes
+    id: evidence
+    attributes:
+      label: 已验证的范围
+      options:
+        - label: 原语音软件的快捷键可以正常开始和结束录音
+        - label: 已使用实体鼠标测试
+        - label: 已验证录音结束及文字回填位置

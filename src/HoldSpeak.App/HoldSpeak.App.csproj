@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <HoldSpeakPlatform Condition="'$(HoldSpeakPlatform)' == '' And $([MSBuild]::IsOSPlatform('Windows'))">Windows</HoldSpeakPlatform>
+    <HoldSpeakPlatform Condition="'$(HoldSpeakPlatform)' == ''">Mac</HoldSpeakPlatform>
+    <TargetFramework Condition="'$(HoldSpeakPlatform)' == 'Windows'">net10.0-windows</TargetFramework>
+    <ApplicationManifest Condition="'$(HoldSpeakPlatform)' == 'Windows'">app.manifest</ApplicationManifest>
+    <ApplicationIcon Condition="'$(HoldSpeakPlatform)' == 'Windows' And Exists('../../branding/leftspeak.ico')">../../branding/leftspeak.ico</ApplicationIcon>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.22" />
+    <ProjectReference Include="../HoldSpeak.Core/HoldSpeak.Core.csproj" />
+    <ProjectReference Include="../HoldSpeak.Mac/HoldSpeak.Mac.csproj" />
+    <ProjectReference Condition="'$(HoldSpeakPlatform)' == 'Windows'" Include="../HoldSpeak.Windows/HoldSpeak.Windows.csproj" />
+  </ItemGroup>
+</Project>

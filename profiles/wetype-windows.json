@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "enabled": false,
+  "holdMs": 600,
+  "movementDip": 8,
+  "probeTimeoutMs": 250,
+  "releaseMouseOnActivate": true,
+  "defaultProfileId": "wetype-windows",
+  "profiles": [
+    {
+      "id": "wetype-windows",
+      "name": "微信输入法 · Ctrl + Win 长按",
+      "mode": "hold",
+      "windowsKeys": ["lCtrl", "lWin"],
+      "macKeys": [],
+      "windowsStopKeys": [],
+      "macStopKeys": [],
+      "maxHoldSeconds": 120,
+      "allowedOverlayApps": []
+    }
+  ],
+  "appRules": []
+}

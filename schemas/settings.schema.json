@@ -1,0 +1,383 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://holdspeak.local/schemas/settings.schema.json",
+  "title": "HoldSpeak settings v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "default": 1
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "holdMs": {
+      "type": "integer",
+      "minimum": 300,
+      "maximum": 1500,
+      "default": 600
+    },
+    "movementDip": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 40,
+      "default": 8
+    },
+    "probeTimeoutMs": {
+      "type": "integer",
+      "minimum": 50,
+      "maximum": 1000,
+      "default": 250
+    },
+    "releaseMouseOnActivate": {
+      "type": "boolean",
+      "default": true
+    },
+    "allowUnconfirmedTargets": {
+      "type": "boolean",
+      "default": true
+    },
+    "triggerAnywhere": {
+      "type": "boolean",
+      "default": true
+    },
+    "defaultProfileId": {
+      "type": "string",
+      "minLength": 1,
+      "default": "default"
+    },
+    "profiles": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "$ref": "#/$defs/profile"
+      }
+    },
+    "appRules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/appRule"
+      }
+    }
+  },
+  "$defs": {
+    "windowsKeys": {
+      "type": "array",
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "lCtrl",
+          "rCtrl",
+          "lWin",
+          "rWin",
+          "lAlt",
+          "rAlt",
+          "lShift",
+          "rShift",
+          "space",
+          "enter",
+          "tab",
+          "escape",
+          "backspace",
+          "delete",
+          "home",
+          "end",
+          "pageUp",
+          "pageDown",
+          "left",
+          "right",
+          "up",
+          "down",
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h",
+          "i",
+          "j",
+          "k",
+          "l",
+          "m",
+          "n",
+          "o",
+          "p",
+          "q",
+          "r",
+          "s",
+          "t",
+          "u",
+          "v",
+          "w",
+          "x",
+          "y",
+          "z",
+          "d0",
+          "d1",
+          "d2",
+          "d3",
+          "d4",
+          "d5",
+          "d6",
+          "d7",
+          "d8",
+          "d9",
+          "f1",
+          "f2",
+          "f3",
+          "f4",
+          "f5",
+          "f6",
+          "f7",
+          "f8",
+          "f9",
+          "f10",
+          "f11",
+          "f12",
+          "f13",
+          "f14",
+          "f15",
+          "f16",
+          "f17",
+          "f18",
+          "f19",
+          "f20",
+          "f21",
+          "f22",
+          "f23",
+          "f24"
+        ]
+      }
+    },
+    "macKeys": {
+      "type": "array",
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "command",
+          "rightCommand",
+          "control",
+          "option",
+          "shift",
+          "space",
+          "enter",
+          "tab",
+          "escape",
+          "backspace",
+          "delete",
+          "home",
+          "end",
+          "pageUp",
+          "pageDown",
+          "left",
+          "right",
+          "up",
+          "down",
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h",
+          "i",
+          "j",
+          "k",
+          "l",
+          "m",
+          "n",
+          "o",
+          "p",
+          "q",
+          "r",
+          "s",
+          "t",
+          "u",
+          "v",
+          "w",
+          "x",
+          "y",
+          "z",
+          "d0",
+          "d1",
+          "d2",
+          "d3",
+          "d4",
+          "d5",
+          "d6",
+          "d7",
+          "d8",
+          "d9",
+          "f1",
+          "f2",
+          "f3",
+          "f4",
+          "f5",
+          "f6",
+          "f7",
+          "f8",
+          "f9",
+          "f10",
+          "f11",
+          "f12",
+          "f13",
+          "f14",
+          "f15",
+          "f16",
+          "f17",
+          "f18",
+          "f19",
+          "f20"
+        ]
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "default": "default"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mode": {
+          "enum": [
+            "hold",
+            "toggle",
+            "separate"
+          ],
+          "default": "hold"
+        },
+        "windowsKeys": {
+          "$ref": "#/$defs/windowsKeys"
+        },
+        "macKeys": {
+          "$ref": "#/$defs/macKeys"
+        },
+        "windowsStopKeys": {
+          "$ref": "#/$defs/windowsKeys"
+        },
+        "macStopKeys": {
+          "$ref": "#/$defs/macKeys"
+        },
+        "maxHoldSeconds": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 600,
+          "default": 120
+        },
+        "allowedOverlayApps": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "separate"
+              },
+              "windowsKeys": {
+                "minItems": 1
+              }
+            },
+            "required": [
+              "mode",
+              "windowsKeys"
+            ]
+          },
+          "then": {
+            "required": [
+              "windowsStopKeys"
+            ],
+            "properties": {
+              "windowsStopKeys": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/windowsKeys"
+                  },
+                  {
+                    "minItems": 1
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "separate"
+              },
+              "macKeys": {
+                "minItems": 1
+              }
+            },
+            "required": [
+              "mode",
+              "macKeys"
+            ]
+          },
+          "then": {
+            "required": [
+              "macStopKeys"
+            ],
+            "properties": {
+              "macStopKeys": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/macKeys"
+                  },
+                  {
+                    "minItems": 1
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "appRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "appId"
+      ],
+      "properties": {
+        "appId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "profileId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

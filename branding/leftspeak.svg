@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <title>左键说 — 按住鼠标左键说话</title>
+  <rect width="64" height="64" rx="16" fill="#1677FF"/>
+  <path d="M29 12C20 12 15 18 15 27V38C15 48 21 53 29 53C37 53 43 48 43 38V27C43 18 38 12 29 12Z" stroke="white" stroke-width="2.5"/>
+  <path d="M28 15C21 15 18 20 18 27V30H28Z" fill="white"/>
+  <path d="M29 13V30M16 32H42" stroke="white" stroke-width="2"/>
+  <path d="M49 28V37M54 23V42" stroke="white" stroke-width="3"/>
+</svg>

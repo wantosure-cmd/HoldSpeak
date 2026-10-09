@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "enabled": false,
+  "holdMs": 600,
+  "movementDip": 8,
+  "probeTimeoutMs": 250,
+  "releaseMouseOnActivate": true,
+  "defaultProfileId": "hold-default",
+  "profiles": [
+    {
+      "id": "hold-default",
+      "name": "自定义长按语音入口",
+      "mode": "hold",
+      "windowsKeys": ["lCtrl", "lWin"],
+      "macKeys": [],
+      "windowsStopKeys": [],
+      "macStopKeys": [],
+      "maxHoldSeconds": 120,
+      "allowedOverlayApps": []
+    }
+  ],
+  "appRules": []
+}

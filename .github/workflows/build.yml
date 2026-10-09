@@ -1,0 +1,37 @@
+name: build
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: macos-latest
+            rid: osx-arm64
+    runs-on: ${{ matrix.os }}
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      AVALONIA_TELEMETRY_OPTOUT: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet run --project tests/HoldSpeak.Core.Tests/HoldSpeak.Core.Tests.csproj -c Release
+      - run: dotnet run --project tests/HoldSpeak.UI.Tests/HoldSpeak.UI.Tests.csproj -c Release
+      - if: runner.os == 'Windows'
+        run: dotnet run --project tests/HoldSpeak.Mac.Tests/HoldSpeak.Mac.Tests.csproj -c Release -- --managed-only
+      - if: runner.os == 'macOS'
+        run: dotnet run --project tests/HoldSpeak.Mac.Tests/HoldSpeak.Mac.Tests.csproj -c Release
+      - if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/publish-windows.ps1 -Runtime ${{ matrix.rid }}
+      - if: runner.os == 'macOS'
+        run: bash scripts/publish-macos.sh ${{ matrix.rid }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HoldSpeak-${{ matrix.rid }}
+          path: artifacts/HoldSpeak-${{ matrix.rid }}/
