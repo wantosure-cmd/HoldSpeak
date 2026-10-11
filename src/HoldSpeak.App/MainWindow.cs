@@ -25,6 +25,9 @@ public sealed class MainWindow : Window
     private InputMethodInfo[] inputMethods = [];
     private string? editingProfileId;
     private bool readingInputMethod;
+    private readonly IAutoStart autoStart;
+    private readonly IosSwitch autoStartSwitch = new();
+    private readonly TextBlock autoStartHint = Label("登录后在托盘运行，自动启用长按说话。切换后立即生效。", 12, "#667085");
     private readonly DispatcherTimer inputMethodTimer = new() { Interval = TimeSpan.FromMilliseconds(500) };
     private readonly ComboBox shortcutSelection = new() { ItemsSource = new[] { "指定快捷方式", "自动切换" }, MinWidth = 200 };
     private readonly TextBlock currentMethodLabel = Label("固定使用所选快捷键", 12, "#667085");
@@ -64,12 +67,13 @@ public sealed class MainWindow : Window
     public bool IsShuttingDown { get; private set; }
     public MainWindow() : this(Program.CreatePlatform) { }
     public MainWindow(Func<IDesktopPlatform> createPlatform, Func<ApplicationOption[]>? listApplications = null,
-        Func<InputMethodInfo[]>? listInputMethods = null, Func<InputMethodInfo?>? currentInputMethod = null)
+        Func<InputMethodInfo[]>? listInputMethods = null, Func<InputMethodInfo?>? currentInputMethod = null, IAutoStart? autoStart = null)
     {
         this.createPlatform = createPlatform;
         this.listApplications = listApplications ?? Program.ListApplications;
         this.listInputMethods = listInputMethods ?? Program.ListInputMethods;
         this.currentInputMethod = currentInputMethod ?? Program.CurrentInputMethod;
+        this.autoStart = autoStart ?? AutoStart.Create();
         Title = "左键说 · 按住左键说话"; Width = 1040; Height = 800; MinWidth = 900; MinHeight = 700;
         Background = Brush.Parse("#F5F7FA"); FontFamily = new FontFamily("Microsoft YaHei UI, PingFang SC, sans-serif"); FontSize = 14;
         Icon = Brand.Icon();
@@ -95,6 +99,16 @@ public sealed class MainWindow : Window
         };
         Content = BuildContent(); SyncControls();
         toggle.Click += async (_, _) => await ToggleAsync();
+        Avalonia.Automation.AutomationProperties.SetName(autoStartSwitch, "开机自启动");
+        ToolTip.SetTip(autoStartSwitch, "登录电脑后自动启动左键说");
+        autoStartSwitch.Click += (_, _) =>
+        {
+            try { this.autoStart.SetEnabled(autoStartSwitch.IsChecked == true); notice.Text = autoStartSwitch.IsChecked == true ? "开机自启动已开启，下次登录后在托盘运行。" : "开机自启动已关闭。"; }
+            catch (Exception ex) { notice.Text = "开机自启动设置失败：" + ex.Message; }
+            RefreshAutoStart();
+        };
+        RefreshAutoStart();
+        Activated += (_, _) => RefreshAutoStart();
         profile.SelectionChanged += (_, _) =>
         {
             if (!syncingControls && profile.SelectedIndex >= 0)
@@ -157,6 +171,9 @@ public sealed class MainWindow : Window
         var selection = new StackPanel { Spacing = 6 }; selection.Children.Add(Label("选择方式", 13, "#344054")); selection.Children.Add(shortcutSelection); route.Children.Add(selection);
         var entry = new StackPanel { Spacing = 6 }; entry.Children.Add(Label("指定快捷键配置", 13, "#344054")); entry.Children.Add(profile); Grid.SetColumn(entry, 1); route.Children.Add(entry); basics.Children.Add(route);
         basics.Children.Add(currentMethodLabel);
+        var startupRow = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), Margin = new Thickness(0, 8, 0, 8) };
+        var startupText = new StackPanel { Spacing = 4 }; startupText.Children.Add(Label("开机自启动", 13, "#344054", FontWeight.SemiBold)); startupText.Children.Add(autoStartHint); startupRow.Children.Add(startupText);
+        Grid.SetColumn(autoStartSwitch, 1); startupRow.Children.Add(autoStartSwitch); basics.Children.Add(startupRow);
         var holdHeader = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
         holdHeader.Children.Add(Label("长按时间", 13, "#344054", FontWeight.SemiBold));
         var timeBadge = new Border { Background = Brush.Parse("#E6F4FF"), CornerRadius = new CornerRadius(6), Padding = new Thickness(10, 3), Child = holdValue }; Grid.SetColumn(timeBadge, 1); holdHeader.Children.Add(timeBadge); basics.Children.Add(holdHeader);
@@ -458,6 +475,11 @@ public sealed class MainWindow : Window
             Save(next); notice.Text = "设置已保存；活动会话会先结束。";
         }
         catch (Exception ex) { notice.Text = "保存失败：" + ex.Message; }
+    }
+    private void RefreshAutoStart()
+    {
+        try { autoStartSwitch.IsChecked = autoStart.IsEnabled(); autoStartSwitch.IsEnabled = true; autoStartHint.Text = "登录后在托盘运行，自动启用长按说话。切换后立即生效。"; }
+        catch (Exception ex) { autoStartSwitch.IsChecked = false; autoStartSwitch.IsEnabled = false; autoStartHint.Text = "无法读取开机自启动状态：" + ex.Message; }
     }
     private void ApplyJson()
     {

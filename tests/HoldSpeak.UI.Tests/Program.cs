@@ -99,7 +99,7 @@ using (var frame = recoveryWindow.CaptureRenderedFrame() ?? throw new Exception(
 var settingsSave = recoveryWindow.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, "保存设置"));
 var bounds = settingsSave.TranslatePoint(new Point(0, settingsSave.Bounds.Height), recoveryWindow);
 if (bounds == null || bounds.Value.Y > recoveryWindow.Bounds.Height - 35) throw new Exception("Compact settings save button clipped");
-var voiceSwitch = recoveryWindow.GetVisualDescendants().OfType<IosSwitch>().Single();
+var voiceSwitch = VoiceSwitch(recoveryWindow);
 if (voiceSwitch.IsChecked != true) throw new Exception("Enabled switch not checked");
 voiceSwitch.Focus(); recoveryWindow.KeyPressQwerty(PhysicalKey.Space, RawModifiers.None); recoveryWindow.KeyReleaseQwerty(PhysicalKey.Space, RawModifiers.None); Pump();
 var switchDeadline = DateTime.UtcNow.AddSeconds(3);
@@ -154,12 +154,12 @@ var retryWindow = CreateWindow(() => { var p = new LifecyclePlatform { FailDurin
 retryWindow.Show(); Pump(); Drive(retryWindow.EnableOnStartupAsync());
 retryPlatforms[0].Fail(); retryPlatforms[0].Resume();
 var retryDeadline = DateTime.UtcNow.AddSeconds(7);
-while ((retryPlatforms.Count < 3 || retryWindow.GetVisualDescendants().OfType<IosSwitch>().Single().IsChecked != true) && DateTime.UtcNow < retryDeadline) { Pump(); Thread.Sleep(10); }
+while ((retryPlatforms.Count < 3 || VoiceSwitch(retryWindow).IsChecked != true) && DateTime.UtcNow < retryDeadline) { Pump(); Thread.Sleep(10); }
 if (retryPlatforms.Count != 3 || !retryPlatforms[1].Disposed || retryPlatforms[2].Starts != 1) throw new Exception("Automatic recovery did not retry after transient startup failure");
 Drive(retryWindow.ShutdownAsync()); retryWindow.Close();
 InputMethodInfo wechatInput = new("wechat", "微信输入法", "wechat"), sogouInput = new("sogou", "搜狗输入法", "sogou");
 InputMethodInfo? activeInput = wechatInput;
-var routingWindow = new MainWindow(() => new LifecyclePlatform(), () => [], () => [wechatInput, sogouInput], () => activeInput);
+var routingWindow = new MainWindow(() => new LifecyclePlatform(), () => [], () => [wechatInput, sogouInput], () => activeInput, new FakeAutoStart());
 routingWindow.Show(); Pump();
 var discoveryDeadline = DateTime.UtcNow.AddSeconds(5);
 while (ConfigurationStore.Parse(File.ReadAllText(configuration)).InputMethodBindings.Length < 2 && DateTime.UtcNow < discoveryDeadline) { Pump(); Thread.Sleep(10); }
@@ -190,7 +190,27 @@ using (var frame = routingWindow.CaptureRenderedFrame() ?? throw new Exception("
 selection.SelectedIndex = 0; Pump();
 if (ConfigurationStore.Parse(File.ReadAllText(configuration)).ShortcutSelection != ShortcutSelectionMode.Fixed) throw new Exception("Fixed mode not persisted");
 Drive(routingWindow.ShutdownAsync()); routingWindow.Close();
-Console.WriteLine("PASS rendered 5 tabs; application refresh/select/manual preservation/empty/failure and explicit save; shortcut capture and mapping; config/profile/rule editing; fault/re-enable lifecycle and startup fault"); return 0;
+var login = new FakeAutoStart();
+var loginWindow = new MainWindow(() => new LifecyclePlatform(), () => [], () => [], () => null, login); loginWindow.Show(); Pump();
+var loginSwitch = loginWindow.GetVisualDescendants().OfType<IosSwitch>().Single(s => Avalonia.Automation.AutomationProperties.GetName(s) == "开机自启动");
+if (loginSwitch.IsChecked != false || login.Writes != 0) throw new Exception("Startup was enabled without user action");
+loginSwitch.IsChecked = true; loginSwitch.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Pump();
+if (!login.Enabled || loginSwitch.IsChecked != true) throw new Exception("Enable login item failed");
+Drive(loginWindow.ToggleAsync()); Drive(loginWindow.ToggleAsync());
+if (!login.Enabled) throw new Exception("Pausing changed auto startup");
+Drive(loginWindow.ShutdownAsync()); loginWindow.Close();
+var reopened = new MainWindow(() => new LifecyclePlatform(), () => [], () => [], () => null, login); reopened.Show(); Pump();
+var reopenedSwitch = reopened.GetVisualDescendants().OfType<IosSwitch>().Single(s => Avalonia.Automation.AutomationProperties.GetName(s) == "开机自启动");
+if (reopenedSwitch.IsChecked != true) throw new Exception("Reopened window lost system registration");
+login.FailWrite = true; reopenedSwitch.IsChecked = false; reopenedSwitch.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Pump();
+if (reopenedSwitch.IsChecked != true || !reopened.GetVisualDescendants().OfType<TextBlock>().Any(t => t.Text?.StartsWith("开机自启动设置失败") == true)) throw new Exception("Failed registration did not restore switch");
+login.FailWrite = false; reopenedSwitch.IsChecked = false; reopenedSwitch.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Pump();
+if (login.Enabled) throw new Exception("Disable login item failed");
+reopened.Width = 900; reopened.Height = 700; Pump();
+using (var frame = reopened.CaptureRenderedFrame() ?? throw new Exception("No startup frame")) frame.Save(Path.Combine(artifacts, "autostart-900.png"));
+Drive(reopened.ShutdownAsync()); reopened.Close();
+CheckAutoStartRegistration();
+Console.WriteLine("PASS auto startup opt-in, persistence, pause independence, disable, write failure rollback, native registration roundtrip and 5-tab UI regressions"); return 0;
 void Refresh()
 {
     refreshApps.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
@@ -233,7 +253,35 @@ static void Drive(Task task)
     if (!task.IsCompleted) throw new TimeoutException("UI lifecycle timed out");
     task.GetAwaiter().GetResult(); Pump();
 }
-static MainWindow CreateWindow(Func<IDesktopPlatform> platform, Func<ApplicationOption[]>? apps = null) => new MainWindow(platform, apps, () => [], () => null);
+static IosSwitch VoiceSwitch(MainWindow window) => window.GetVisualDescendants().OfType<IosSwitch>().Single(s => Avalonia.Automation.AutomationProperties.GetName(s) == "长按说话开关");
+static MainWindow CreateWindow(Func<IDesktopPlatform> platform, Func<ApplicationOption[]>? apps = null) => new MainWindow(platform, apps, () => [], () => null, new FakeAutoStart());
+static void CheckAutoStartRegistration()
+{
+    var isolatedKey = @"Software\HoldSpeak\Tests\" + Guid.NewGuid().ToString("N");
+    var service = new AutoStart(Environment.ProcessPath!, Path.Combine(Path.GetTempPath(), "左键说 & settings"), runKey: isolatedKey);
+    var xml = System.Xml.Linq.XDocument.Parse(service.MacPlist);
+    if (!xml.Descendants("array").Single().Elements("string").Select(e => e.Value).SequenceEqual(service.Arguments)) throw new Exception("Mac arguments escaped incorrectly");
+    if (AutoStart.QuoteWindowsArgument("a b\\") != "\"a b\\\\\"" || AutoStart.QuoteWindowsArgument("a\"b") != "\"a\\\"b\"") throw new Exception("Windows quoting failed");
+    if (!OperatingSystem.IsWindows()) return;
+    try
+    {
+        if (service.IsEnabled()) throw new Exception("Test registration already exists");
+        service.SetEnabled(true);
+        using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(isolatedKey))
+            if (key?.GetValue("HoldSpeak") as string != service.WindowsCommand) throw new Exception("Startup command not persisted exactly");
+        if (!service.IsEnabled() || !new AutoStart(Environment.ProcessPath!, service.Arguments[3], runKey: isolatedKey).IsEnabled()) throw new Exception("System registration not retained");
+        service.SetEnabled(false);
+        if (service.IsEnabled()) throw new Exception("Registration not removed");
+    }
+    finally { Microsoft.Win32.Registry.CurrentUser.DeleteSubKeyTree(isolatedKey, false); }
+}
+sealed class FakeAutoStart : IAutoStart
+{
+    public bool Enabled, FailWrite;
+    public int Writes;
+    public bool IsEnabled() => Enabled;
+    public void SetEnabled(bool enabled) { if (FailWrite) throw new IOException("fixture"); Enabled = enabled; Writes++; }
+}
 sealed class LifecyclePlatform : IDesktopPlatform
 {
     public bool DetectionEnabled = true;

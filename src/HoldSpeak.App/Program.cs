@@ -12,6 +12,8 @@ namespace HoldSpeak.App;
 internal static class Program
 {
     internal static bool SmokeTest;
+    internal static bool UiSmokeTest;
+    internal static bool AutoStarted;
     internal static InputMethodInfo[] ListInputMethods()
     {
 #if WINDOWS
@@ -31,7 +33,15 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
-        SmokeTest = args.Contains("--smoke-test");
+        UiSmokeTest = args.Contains("--smoke-autostart-ui");
+        SmokeTest = args.Contains("--smoke-test") || UiSmokeTest;
+        AutoStarted = args.Contains("--autostart");
+        int configIndex = Array.IndexOf(args, "--config-dir");
+        if (configIndex >= 0)
+        {
+            if (configIndex + 1 >= args.Length || string.IsNullOrWhiteSpace(args[configIndex + 1])) return 1;
+            Environment.SetEnvironmentVariable("HOLDSPEAK_CONFIG_DIR", Path.GetFullPath(args[configIndex + 1]));
+        }
 #if WINDOWS
         if (args.Contains("--benchmark-input-method"))
         {
@@ -179,6 +189,7 @@ internal static class Program
 
 internal static class AppPaths
 {
+    static AppPaths() { } // Initialize only after Main has applied --config-dir.
     internal static readonly string Directory = Path.GetFullPath(Environment.GetEnvironmentVariable("HOLDSPEAK_CONFIG_DIR") ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "HoldSpeak"));
     internal static string Settings => Path.Combine(Directory, "settings.json");
 }

@@ -50,7 +50,9 @@ public sealed class DesktopApp : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            var window = new MainWindow(); desktop.MainWindow = window;
+            var window = new MainWindow();
+            // Leaving MainWindow unset prevents the lifetime from showing settings on login.
+            desktop.MainWindow = Program.AutoStarted ? null : window;
             var menu = new NativeMenu();
             var show = new NativeMenuItem("打开左键说"); show.Click += (_, _) => { window.Show(); window.Activate(); }; menu.Add(show);
             var pause = new NativeMenuItem("启用／暂停"); pause.Click += async (_, _) => await window.ToggleAsync(); menu.Add(pause);
@@ -60,16 +62,28 @@ public sealed class DesktopApp : Application
             TrayIcon.SetIcons(this, new TrayIcons { tray });
             window.Closing += (_, e) => { if (!window.IsShuttingDown) { e.Cancel = true; window.Hide(); } };
             desktop.Exit += (_, _) => { window.ShutdownAsync().GetAwaiter().GetResult(); tray.Dispose(); };
-            if (!Program.SmokeTest) Dispatcher.UIThread.Post(async () => await window.EnableOnStartupAsync());
+            if (!Program.SmokeTest) Dispatcher.UIThread.Post(async () =>
+            {
+                if (Program.AutoStarted) await window.RefreshInputMethodsAsync();
+                await window.EnableOnStartupAsync();
+            });
             if (Program.SmokeTest) Dispatcher.UIThread.Post(async () =>
             {
                 try
                 {
+                    if (Program.UiSmokeTest)
+                    {
+                        await Task.Delay(500);
+                        if (!Program.AutoStarted || window.IsVisible) throw new InvalidOperationException("Login startup was not hidden");
+                        System.IO.File.WriteAllText(System.IO.Path.Combine(AppPaths.Directory, "smoke-result.txt"), "PASS autostart hidden settings, tray initialized, explicit configuration directory; native engine excluded");
+                        return;
+                    }
                     using var platform = Program.CreatePlatform();
                     await using var engine = new HoldSpeak.Core.EngineHost(platform, new() { Enabled = false });
                     await Task.Run(engine.Start);
                     await Task.Delay(500);
-                    System.IO.File.WriteAllText(System.IO.Path.Combine(AppPaths.Directory, "smoke-result.txt"), "PASS window, tray, native hook, recovery process; engine stayed paused");
+                    if (Program.AutoStarted && window.IsVisible) throw new InvalidOperationException("Autostart showed the settings window");
+                    System.IO.File.WriteAllText(System.IO.Path.Combine(AppPaths.Directory, "smoke-result.txt"), "PASS window, tray, native hook, recovery process; engine stayed paused; autostartHidden=" + (Program.AutoStarted && !window.IsVisible));
                 }
                 catch (Exception ex) { System.IO.File.WriteAllText(System.IO.Path.Combine(AppPaths.Directory, "smoke-result.txt"), "FAIL " + ex); }
                 finally { await window.ShutdownAsync(); desktop.Shutdown(); }
