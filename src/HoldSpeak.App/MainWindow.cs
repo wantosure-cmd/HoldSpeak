@@ -129,7 +129,12 @@ public sealed class MainWindow : Window
         Closed += (_, _) => inputMethodTimer.Stop();
         inputMethodTimer.Tick += async (_, _) => { if (IsVisible) await UpdateCurrentInputMethodAsync(); };
         ruleList.SelectionChanged += (_, _) => SyncRuleFields();
-        runningApps.SelectionChanged += (_, _) => { if (runningApps.SelectedItem is ApplicationOption app) ruleApp.Text = app.AppId; };
+        runningApps.SelectionChanged += (_, _) =>
+        {
+            if (runningApps.SelectedItem is not ApplicationOption app) return;
+            ruleApp.Text = app.AppId;
+            ruleEnabled.IsChecked = settings.AppRules.FirstOrDefault(r => r.AppId.Equals(app.AppId, StringComparison.OrdinalIgnoreCase))?.Enabled ?? false;
+        };
         refreshApps.Click += async (_, _) => await RefreshApplicationsAsync();
         hold.PropertyChanged += (_, e) =>
         {
@@ -203,12 +208,20 @@ public sealed class MainWindow : Window
         var newProfile = new Button { Content = "另存为新配置" }; newProfile.Click += (_, _) => SaveProfile(true); profileButtons.Children.Add(newProfile);
         var deleteProfile = new Button { Content = "删除当前配置" }; deleteProfile.Click += (_, _) => DeleteProfile(); profileButtons.Children.Add(deleteProfile); profiles.Children.Add(profileButtons);
         var rules = new StackPanel { Spacing = 12 };
-        rules.Children.Add(Label("按应用设置", 18, "#F0F5FC", FontWeight.SemiBold)); rules.Children.Add(ruleList);
+        rules.Children.Add(Label("游戏与应用黑名单", 18, "#101828", FontWeight.SemiBold)); rules.Children.Add(ruleList);
         var applicationPicker = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 8 };
         applicationPicker.Children.Add(runningApps); Grid.SetColumn(refreshApps, 1); applicationPicker.Children.Add(refreshApps); rules.Children.Add(applicationPicker);
-        rules.Children.Add(Label("刷新后选择应用，自动填写下方标识；未列出的应用仍可手动填写或通过诊断获取。", 12, "#9CAABC"));
+        rules.Children.Add(Label("选择正在运行的程序，点击“加入黑名单”，无需查找安装目录。", 13, "#344054"));
+        var blacklist = new Button { Content = "加入黑名单", HorizontalAlignment = HorizontalAlignment.Left }; blacklist.Classes.Add("accent");
+        blacklist.Click += (_, _) =>
+        {
+            if (runningApps.SelectedItem is not ApplicationOption app) { notice.Text = "请先从运行中的程序列表选择一个应用。"; return; }
+            ruleApp.Text = app.AppId; ruleEnabled.IsChecked = false; SaveRule();
+        };
+        rules.Children.Add(blacklist);
+        rules.Children.Add(Label(OperatingSystem.IsWindows() ? "按程序名（如 game.exe）匹配全部同名实例，不绑定目录或 PID。升级或移动目录后仍有效；若程序名改变，需要重新添加。" : "按应用 Bundle ID 匹配，不绑定安装目录；应用标识不变时升级后仍有效。", 12, "#667085"));
         rules.Children.Add(ruleApp); rules.Children.Add(ruleEnabled);
-        rules.Children.Add(Label("可以关闭某些应用中的长按功能。\n指定／自动模式不会使用应用规则覆盖快捷键配置。", 13, "#9CAABC"));
+        rules.Children.Add(Label("黑名单中的程序在前台时不会触发语音，切回其他应用后可正常使用。\n也可编辑下方标识；勾选启用并保存，或删除规则，可以解除禁用。", 13, "#667085"));
         var ruleButtons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
         var saveRule = new Button { Content = "保存应用规则" }; saveRule.Click += (_, _) => SaveRule(); ruleButtons.Children.Add(saveRule);
         var deleteRule = new Button { Content = "删除应用规则" }; deleteRule.Click += (_, _) => DeleteRule(); ruleButtons.Children.Add(deleteRule); rules.Children.Add(ruleButtons);
@@ -239,7 +252,12 @@ public sealed class MainWindow : Window
         Control Page(Control content) => new ScrollViewer { Content = Card(content), HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled };
         Control Nav(string icon, string name) => new TextBlock { Text = $"{icon}    {name}", Width = 128, FontSize = 13, Margin = new Thickness(8, 10), Foreground = Brush.Parse("#344054") };
         var tabs = new TabControl { TabStripPlacement = Dock.Left, ItemsSource = new[] { new TabItem { Header = Nav("◉", "常规设置"), Content = Card(regular) }, new TabItem { Header = Nav("♫", "语音软件"), Content = Page(profiles) }, new TabItem { Header = Nav("▦", "应用规则"), Content = Page(rules) }, new TabItem { Header = Nav("≡", "高级配置"), Content = Page(advanced) }, new TabItem { Header = Nav("⌁", "诊断与帮助"), Content = Page(checks) } } };
-        tabs.SelectionChanged += (_, _) => CancelShortcutCapture("切换页面，快捷键录入已取消。");
+        tabs.SelectionChanged += async (_, e) =>
+        {
+            if (!ReferenceEquals(e.Source, tabs)) return;
+            CancelShortcutCapture("切换页面，快捷键录入已取消。");
+            if (tabs.SelectedIndex == 2) await RefreshApplicationsAsync();
+        };
         Grid.SetRow(tabs, 3); root.Children.Add(tabs);
         var footer = Label($"左键说 · HoldSpeak {typeof(MainWindow).Assembly.GetName().Version?.ToString(3)}     |     © 2026 HoldSpeak contributors · MIT", 11, "#98A2B3"); footer.Margin = new Thickness(0, 12, 0, 0); Grid.SetRow(footer, 4); root.Children.Add(footer);
         return root;
@@ -320,7 +338,7 @@ public sealed class MainWindow : Window
         hold.Value = settings.HoldMs; holdValue.Text = $"{settings.HoldMs} ms"; movement.Value = settings.MovementDip; releaseMouse.IsChecked = settings.ReleaseMouseOnActivate;
         editor.Text = JsonSerializer.Serialize(settings, ConfigurationStore.Json);
         SyncProfileFields();
-        ruleList.ItemsSource = settings.AppRules.Select(r => r.AppId).ToArray();
+        ruleList.ItemsSource = settings.AppRules.Select(r => r.AppId + (r.Enabled ? " · 已启用" : " · 黑名单")).ToArray();
         ruleProfile.ItemsSource = new[] { "跟随全局" }.Concat(settings.Profiles.Select(p => p.Name)).ToArray(); ruleProfile.SelectedIndex = 0;
         }
         finally { syncingControls = false; }
@@ -337,10 +355,12 @@ public sealed class MainWindow : Window
         refreshApps.IsEnabled = false;
         try
         {
-            var applications = await Task.Run(listApplications);
+            var selectedId = (runningApps.SelectedItem as ApplicationOption)?.AppId;
+            var applications = (await Task.Run(listApplications)).DistinctBy(a => a.AppId, StringComparer.OrdinalIgnoreCase).OrderBy(a => a.Name, StringComparer.OrdinalIgnoreCase).ToArray();
             if (IsShuttingDown) return;
             runningApps.ItemsSource = applications;
-            notice.Text = applications.Length == 0 ? "未找到可选应用，可以手动填写应用标识。" : $"已列出 {applications.Length} 个应用，请选择后保存规则。";
+            runningApps.SelectedIndex = Array.FindIndex(applications, a => a.AppId.Equals(selectedId, StringComparison.OrdinalIgnoreCase));
+            notice.Text = applications.Length == 0 ? "未找到可选应用，可以手动填写应用标识。" : $"已列出 {applications.Length} 个应用，选择后点击“加入黑名单”。";
         }
         catch (Exception ex) { if (!IsShuttingDown) notice.Text = "读取应用列表失败：" + ex.Message; }
         finally { refreshApps.IsEnabled = true; }

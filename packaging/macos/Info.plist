@@ -5,7 +5,7 @@
 <key>CFBundleName</key><string>左键说</string>
 <key>CFBundleExecutable</key><string>HoldSpeak.App</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.1.20</string>
-<key>CFBundleVersion</key><string>21</string>
+<key>CFBundleShortVersionString</key><string>0.1.21</string>
+<key>CFBundleVersion</key><string>22</string>
 <key>NSHighResolutionCapable</key><true/>
 </dict></plist>

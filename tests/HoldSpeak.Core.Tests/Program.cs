@@ -27,6 +27,15 @@ if (args is ["--lease-test-worker", var leaseDirectory, var workerMode])
 
 var tests = new (string Name, Action Run)[]
 {
+    ("按程序名禁用同名实例，不区分大小写且重启配置后仍生效", () => {
+        var saved = ConfigurationStore.Parse(System.Text.Json.JsonSerializer.Serialize(new Settings { TriggerAnywhere = true, AppRules = [new() { AppId = "game.exe", Enabled = false }] }, ConfigurationStore.Json));
+        foreach (var app in new[] { "game.exe", "GAME.EXE" })
+        {
+            var t = new Fixture(saved); t.Platform.App = app; t.Platform.Window = app == "game.exe" ? 10 : 20;
+            t.Down(); t.Engine.Tick(600); Equal(0, t.Platform.Begins);
+        }
+        var allowed = new Fixture(saved); allowed.Down(); allowed.Engine.Tick(600); Equal(1, allowed.Platform.Begins); allowed.Up(800);
+    }),
     ("指定模式忽略当前输入法和应用配置覆盖", () => {
         var t = new Fixture(new Settings { Profiles = [new(), new() { Id = "other" }], AppRules = [new() { AppId = "editor.exe", ProfileId = "other" }] });
         t.Platform.Input = new("sogou", "搜狗"); t.Down(); t.Engine.Tick(600);
