@@ -21,8 +21,6 @@ public sealed class WindowsPlatform : IDesktopPlatform
     private int disposed;
     private long lastDown;
     private Native.Point lastPoint;
-    private nint cachedWindow;
-    private string cachedApp = "";
     private bool detectionEnabled = true;
     private HookWatchdog? watchdog;
     public void SetDetectionEnabled(bool enabled) => detectionEnabled = enabled;
@@ -40,22 +38,13 @@ public sealed class WindowsPlatform : IDesktopPlatform
     public event Action<PointerEvent>? Pointer;
     public event Action<string>? Faulted;
     public event Action<string>? RecoveryRequested;
-    public string ForegroundAppId
-    {
-        get
-        {
-            nint window = Native.GetForegroundWindow();
-            if (window == 0) return "";
-            if (window != cachedWindow) { cachedApp = AppId(window); cachedWindow = window; }
-            return cachedApp;
-        }
-    }
+    public string ForegroundAppId => AppId(Native.GetForegroundWindow());
     public WindowsPlatform() { mouseCallback = MouseHook; keyboardCallback = KeyboardHook; }
     public static string AppId(nint hwnd)
     {
         if (hwnd == 0) return "";
         try { Native.GetWindowThreadProcessId(hwnd, out uint pid); using var p = Process.GetProcessById((int)pid); return p.ProcessName + ".exe"; }
-        catch (ArgumentException) { return ""; } catch (InvalidOperationException) { return ""; }
+        catch (ArgumentException) { return ""; } catch (InvalidOperationException) { return ""; } catch (System.ComponentModel.Win32Exception) { return ""; }
     }
     public void Start()
     {

@@ -52,9 +52,9 @@ public sealed class GestureEngine
             if (e.MultiClick) { Set(GestureState.AwaitRelease, "multi_click", "保留双击／多击操作"); return; }
             if (settings.TriggerAnywhere)
             {
-                origin = e; target = new(Editability.Unknown, platform.ForegroundAppId, platform.ForegroundWindowId, "", "global_hold");
-                profile = settings.ResolveShortcut(target.AppId, settings.ShortcutSelection == ShortcutSelectionMode.Automatic ? platform.CurrentInputMethod : null); Generation++;
-                if (profile == null) { Finish("shortcut_unavailable", "当前输入法未识别、未配置快捷键或应用已禁用"); return; }
+                // The mouse hook can run before Windows activates the clicked window.
+                // Resolve exclusions and IME only when the hold actually starts.
+                origin = e; target = null; profile = null; Generation++;
                 Set(GestureState.Candidate, "hold_pending", "全局长按 · 按住左键开始说话");
                 return;
             }
@@ -205,12 +205,19 @@ public sealed class GestureEngine
     private void ClearHover() { hoverGeneration++; hoverPending = false; hoverTarget = null; }
     private void Activate(long nowMs)
     {
-        if (settings.ShortcutSelection == ShortcutSelectionMode.Automatic)
+        try
         {
-            profile = settings.ResolveShortcut(target!.AppId, platform.CurrentInputMethod);
+            long window = platform.ForegroundWindowId;
+            string app = platform.ForegroundAppId;
+            if (window == 0 || string.IsNullOrWhiteSpace(app)) { Finish("no_foreground_app", "当前前台应用无法确认，请重新长按"); return; }
+            target = new(Editability.Unknown, app, window, "", "global_hold");
+            if (settings.AppRules.Any(r => !r.Enabled && SameApp(r.AppId, app))) { Finish("app_disabled", $"前台 {app} 在黑名单中，本次不触发语音"); return; }
+            profile = settings.ResolveShortcut(app, settings.ShortcutSelection == ShortcutSelectionMode.Automatic ? platform.CurrentInputMethod : null);
+            if (window != platform.ForegroundWindowId || !SameApp(app, platform.ForegroundAppId)) { Finish("foreground_changed", "启动前切换了前台应用，请重新长按"); return; }
             if (profile == null) { Finish("shortcut_unavailable", "当前输入法未配置快捷键，请到语音软件页设置"); return; }
+            Set(GestureState.Activating, "activating", "正在发送语音快捷键");
         }
-        Set(GestureState.Activating, "activating", "正在保持快捷键");
+        catch (Exception ex) { Finish("foreground_unavailable", "无法读取当前前台应用：" + ex.Message); return; }
         try
         {
             long dispatchStart = Environment.TickCount64;

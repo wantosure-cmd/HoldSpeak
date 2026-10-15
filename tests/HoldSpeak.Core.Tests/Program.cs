@@ -27,6 +27,37 @@ if (args is ["--lease-test-worker", var leaseDirectory, var workerMode])
 
 var tests = new (string Name, Action Run)[]
 {
+    ("黑名单窗口按下后切入允许应用，阈值按最新前台判断", () => {
+        foreach (bool automatic in new[] { false, true })
+        {
+            var options = automatic ? AutomaticSettings() : new Settings();
+            var t = new Fixture(options with { AppRules = [new() { AppId = "game.exe", Enabled = false }] });
+            t.Platform.Input = new("wechat", "微信"); t.Platform.App = "game.exe"; t.Down();
+            t.Platform.App = "editor.exe"; t.Platform.Window = 2; t.Engine.Tick(599); Equal(0, t.Platform.Begins);
+            t.Engine.Tick(600); Equal(1, t.Platform.Begins); t.Up(700); Equal(1, t.Platform.Ends);
+        }
+    }),
+    ("允许窗口按下后切入黑名单，固定及自动模式都不发送快捷键", () => {
+        foreach (bool automatic in new[] { false, true })
+        {
+            var options = automatic ? AutomaticSettings() : new Settings();
+            var t = new Fixture(options with { AppRules = [new() { AppId = "game.exe", Enabled = false }] });
+            t.Platform.Input = new("wechat", "微信"); t.Down();
+            t.Platform.App = "game.exe"; t.Platform.Window = 2; t.Engine.Tick(600); Equal(0, t.Platform.Begins);
+        }
+    }),
+    ("后台黑名单不影响后续前台手势，黑名单判断不读取候选前台", () => {
+        var t = new Fixture(new Settings { AppRules = [new() { AppId = "game.exe", Enabled = false }] });
+        t.Platform.App = "game.exe"; t.Down(); Equal(0, t.Platform.AppReads); t.Engine.Tick(600); Equal(0, t.Platform.Begins); t.Up(700);
+        t.Platform.App = "editor.exe"; t.Platform.Window = 2; t.Down(); t.Engine.Tick(600); Equal(1, t.Platform.Begins); t.Up(800);
+        t.Platform.App = "game.exe"; t.Down(); t.Engine.Tick(600); Equal(1, t.Platform.Begins); t.Up(800);
+    }),
+    ("触发前读取输入法期间切换前台或前台消失，不发送错误快捷键", () => {
+        var t = new Fixture(AutomaticSettings()); t.Platform.Input = new("wechat", "微信");
+        t.Platform.OnInputRead = () => { t.Platform.App = "game.exe"; t.Platform.Window = 2; };
+        t.Down(); t.Engine.Tick(600); Equal(0, t.Platform.Begins);
+        var missing = new Fixture(new Settings()); missing.Platform.Window = 0; missing.Down(); missing.Engine.Tick(600); Equal(0, missing.Platform.Begins);
+    }),
     ("按程序名禁用同名实例，不区分大小写且重启配置后仍生效", () => {
         var saved = ConfigurationStore.Parse(System.Text.Json.JsonSerializer.Serialize(new Settings { TriggerAnywhere = true, AppRules = [new() { AppId = "game.exe", Enabled = false }] }, ConfigurationStore.Json));
         foreach (var app in new[] { "game.exe", "GAME.EXE" })
@@ -405,12 +436,13 @@ sealed class FakePlatform : IDesktopPlatform
     internal string App = "editor.exe", LastProfile = "";
     internal int Begins, Ends;
     internal InputMethodInfo? Input;
-    internal int InputReads;
+    internal int InputReads, AppReads;
+    internal Action? OnInputRead;
     internal ActivationMode LastMode;
-    public InputMethodInfo? CurrentInputMethod { get { InputReads++; return Input; } }
+    public InputMethodInfo? CurrentInputMethod { get { InputReads++; OnInputRead?.Invoke(); return Input; } }
     public bool IsMac => false;
     public bool PhysicalLeftDown => Left;
-    public string ForegroundAppId => App;
+    public string ForegroundAppId { get { AppReads++; return App; } }
     internal long Window = 1;
     public long ForegroundWindowId => Window;
     public string PermissionStatus => "test";
