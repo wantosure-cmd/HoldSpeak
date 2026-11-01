@@ -206,6 +206,7 @@ if (!routingWindow.GetVisualDescendants().OfType<TextBlock>().Any(t => t.Text?.S
 using (var frame = routingWindow.CaptureRenderedFrame() ?? throw new Exception("No automatic mode frame")) frame.Save(Path.Combine(artifacts, "automatic-mode.png"));
 var editInput = routingWindow.GetVisualDescendants().OfType<ComboBox>().Single(c => c.PlaceholderText == "编辑输入法");
 editInput.SelectedItem = editInput.ItemsSource!.Cast<InputMethodInfo>().Single(i => i.Id == sogouInput.Id); Pump();
+if (mac) { routingWindow.GetVisualDescendants().OfType<Expander>().Single(e => Equals(e.Header, "更多设置")).IsExpanded = true; Pump(); }
 var routingKeys = routingWindow.GetVisualDescendants().OfType<TextBox>().Single(t => t.Watermark == "LCtrl, LWin");
 if (routingKeys.Text != "F2") throw new Exception("Sogou preset did not use confirmed F2");
 routingKeys.Text = "F3";
@@ -238,6 +239,7 @@ var sharedWindow = new MainWindow(() => new LifecyclePlatform(), () => [], () =>
 sharedWindow.Show(); Pump(); Drive(sharedWindow.RefreshInputMethodsAsync()); sharedWindow.GetVisualDescendants().OfType<TabControl>().Single().SelectedIndex = 1; Pump();
 var sharedPicker = sharedWindow.GetVisualDescendants().OfType<ComboBox>().Single(c => c.PlaceholderText == "编辑输入法");
 sharedPicker.SelectedItem = sharedPicker.ItemsSource!.Cast<InputMethodInfo>().Single(i => i.Id == sogouInput.Id); Pump();
+if (mac) { sharedWindow.GetVisualDescendants().OfType<Expander>().Single(e => Equals(e.Header, "更多设置")).IsExpanded = true; Pump(); }
 var sharedKeys = sharedWindow.GetVisualDescendants().OfType<TextBox>().Single(t => t.Watermark == "LCtrl, LWin"); sharedKeys.Text = "F4";
 var sharedSave = sharedWindow.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content,"保存语音配置")); sharedSave.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Pump();
 var forked = ConfigurationStore.Parse(File.ReadAllText(configuration));
