@@ -8,6 +8,12 @@ Holding the left mouse button to speak can be more convenient than repeatedly re
 
 HoldSpeak sends the shortcut; your chosen voice software handles recording, recognition and text insertion. Configure HoldSpeak to match the shortcut and activation mode supported by that software.
 
+**Voice software examples:**
+
+- **WeType (WeChat Input Method):** Ctrl+Win hold has been configured on Windows, and the user previously confirmed activation. Retesting the current version is still recommended.
+- **[Doubao Input Method](https://srf.doubao.com/pc)** and **[Typeless](https://www.typeless.com/)**: you can try matching their shortcut and activation mode in Voice Shortcuts. End-to-end compatibility has not yet been verified.
+
+The shortcut must use keys supported by HoldSpeak. Fn alone cannot currently be simulated; if your voice software uses Fn, first check whether it can be changed to another supported shortcut.
 ## Install and use
 
 1. Download the Windows portable ZIP from [Releases](https://github.com/wantosure-cmd/HoldSpeak/releases), extract it and run `HoldSpeak.App.exe`.
