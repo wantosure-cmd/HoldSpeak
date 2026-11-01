@@ -1,0 +1,1362 @@
+{
+  "登录后在托盘运行，自动启用长按说话。切换后立即生效。": [
+    "Run in the tray after login and enable hold to talk. Changes apply immediately.",
+    "ログイン後にトレイで起動し、長押しを有効にします。変更はすぐに反映されます。",
+    "로그인 후 트레이에서 실행하고 길게 눌러 말하기를 켭니다. 변경 즉시 적용됩니다."
+  ],
+  "固定使用一个快捷键": [
+    "Use a fixed shortcut",
+    "固定ショートカットを使用",
+    "고정 단축키 사용"
+  ],
+  "跟随当前输入法": [
+    "Follow input method",
+    "使用中の入力メソッドに追従",
+    "현재 입력기 따르기"
+  ],
+  "固定使用所选快捷键": [
+    "Always use the selected shortcut",
+    "選択したショートカットを常に使用",
+    "선택한 단축키를 항상 사용"
+  ],
+  "编辑输入法": [
+    "Select input method to edit",
+    "編集する入力メソッド",
+    "편집할 입력기 선택"
+  ],
+  "刷新输入法": [
+    "Refresh",
+    "更新",
+    "새로 고침"
+  ],
+  "尚未启用": [
+    "Not enabled",
+    "未有効",
+    "꺼짐"
+  ],
+  "全局长按模式：任何位置按住左键即可触发语音。": [
+    "Hold the left button anywhere to trigger voice input.",
+    "どこでも左ボタンの長押しで音声入力を開始できます。",
+    "어디서나 마우스 왼쪽 버튼을 길게 누르면 음성 입력이 시작됩니다."
+  ],
+  "已暂停": [
+    "Paused",
+    "一時停止中",
+    "일시 중지됨"
+  ],
+  "开始时结束鼠标拖选（推荐）": [
+    "Release mouse selection on start (recommended)",
+    "開始時にドラッグ選択を解除（推奨）",
+    "시작 시 마우스 드래그 선택 해제 (권장)"
+  ],
+  "仅分别开始／结束模式需要": [
+    "Only for separate start / stop mode",
+    "開始・終了が別のモードのみ",
+    "시작 / 종료 분리 모드에만 필요"
+  ],
+  "保持：按住开始，松开结束": [
+    "Hold: press to start, release to stop",
+    "長押し：押して開始、離して終了",
+    "길게 누르기: 누르면 시작, 놓으면 종료"
+  ],
+  "切换：开始和结束各按一次": [
+    "Toggle: press once to start and again to stop",
+    "切り替え：1回押して開始、もう1回で終了",
+    "전환: 한 번 눌러 시작, 다시 눌러 종료"
+  ],
+  "分别发送开始和结束快捷键": [
+    "Send separate start and stop shortcuts",
+    "開始と終了で別のショートカットを送信",
+    "시작과 종료에 다른 단축키 사용"
+  ],
+  "尚未添加黑名单": [
+    "No blocked apps yet",
+    "ブロックされたアプリはありません",
+    "차단된 앱 없음"
+  ],
+  "选择当前运行的应用": [
+    "Select a running app",
+    "実行中のアプリを選択",
+    "실행 중인 앱 선택"
+  ],
+  "刷新应用列表": [
+    "Refresh apps",
+    "アプリを更新",
+    "앱 목록 새로 고침"
+  ],
+  "3 秒后检查鼠标处输入框": [
+    "Inspect target in 3 seconds",
+    "3秒後に入力欄を確認",
+    "3초 후 입력란 확인"
+  ],
+  "左键说 · 按住左键说话": [
+    "HoldSpeak · Hold the left button to talk",
+    "HoldSpeak · 左ボタンを長押しして話す",
+    "HoldSpeak · 왼쪽 버튼을 누르고 말하기"
+  ],
+  "主配置损坏，已加载上一次保存的备份。原文件保留；确认设置后再保存。": [
+    "Settings were damaged. The last backup was loaded and the original kept. Review before saving.",
+    "設定が破損しているため、前回のバックアップを読み込みました。元のファイルは保持されています。確認後に保存してください。",
+    "설정이 손상되어 이전 백업을 불러왔습니다. 원본은 보존되었습니다. 확인 후 저장하세요."
+  ],
+  "配置加载失败，已使用默认值：": [
+    "Could not load settings; using defaults: ",
+    "設定を読み込めないため、初期値を使用します：",
+    "설정을 불러오지 못해 기본값을 사용합니다: "
+  ],
+  "开机自启动": [
+    "Launch at login",
+    "ログイン時に起動",
+    "로그인 시 자동 실행"
+  ],
+  "登录电脑后自动启动左键说": [
+    "Start HoldSpeak automatically after login",
+    "ログイン後にHoldSpeakを自動起動",
+    "로그인 후 HoldSpeak 자동 실행"
+  ],
+  "开机自启动已开启，下次登录后在托盘运行。": [
+    "Launch at login enabled. HoldSpeak will run in the tray.",
+    "ログイン時の起動を有効にしました。次回はトレイで起動します。",
+    "자동 실행을 켰습니다. 다음 로그인부터 트레이에서 실행됩니다."
+  ],
+  "开机自启动已关闭。": [
+    "Launch at login disabled.",
+    "ログイン時の起動を無効にしました。",
+    "자동 실행을 껐습니다."
+  ],
+  "开机自启动设置失败：": [
+    "Could not change login startup: ",
+    "自動起動の設定に失敗しました：",
+    "자동 실행 설정 실패: "
+  ],
+  "选择保存失败：": [
+    "Could not save selection: ",
+    "選択を保存できません：",
+    "선택 저장 실패: "
+  ],
+  "模式保存失败：": [
+    "Could not save mode: ",
+    "モードを保存できません：",
+    "모드 저장 실패: "
+  ],
+  "长按时间 {0} ms 已自动保存并生效。": [
+    "Hold delay of {0} ms saved and applied.",
+    "長押し時間 {0} ms を保存し、適用しました。",
+    "길게 누르기 시간 {0} ms를 저장하고 적용했습니다."
+  ],
+  "长按时间保存失败：": [
+    "Could not save hold delay: ",
+    "長押し時間を保存できません：",
+    "길게 누르기 시간 저장 실패: "
+  ],
+  "快捷键录入超时，原设置保留。": [
+    "Shortcut capture timed out. Previous settings kept.",
+    "キー登録がタイムアウトしました。元の設定を保持します。",
+    "단축키 입력 시간이 초과되었습니다. 기존 설정을 유지합니다."
+  ],
+  "窗口失去焦点，快捷键录入已取消。": [
+    "Window lost focus. Shortcut capture cancelled.",
+    "ウィンドウのフォーカスが外れたため、キー登録を中止しました。",
+    "창이 포커스를 잃어 단축키 입력을 취소했습니다."
+  ],
+  "左键说": [
+    "HoldSpeak",
+    "HoldSpeak",
+    "HoldSpeak"
+  ],
+  "●  本地运行": [
+    "●  Runs locally",
+    "●  ローカル動作",
+    "●  로컬 실행"
+  ],
+  "按住左键  →  开始说话  →  松开结束": [
+    "Hold left button  →  Speak  →  Release to finish",
+    "左ボタンを長押し  →  話す  →  離して終了",
+    "왼쪽 버튼 누르기  →  말하기  →  놓으면 종료"
+  ],
+  "鼠标与启动": [
+    "Mouse & startup",
+    "マウスと起動",
+    "마우스 및 시작"
+  ],
+  "长按时间": [
+    "Hold delay",
+    "長押し時間",
+    "길게 누르기 시간"
+  ],
+  "调整后自动保存。时间越短，触发越快；也更容易误触。": [
+    "Saved automatically. A shorter delay starts faster but may trigger accidentally.",
+    "自動保存されます。短いほど速く反応しますが、誤操作も増えます。",
+    "자동 저장됩니다. 시간이 짧을수록 빠르게 시작되지만 실수로 작동하기 쉽습니다."
+  ],
+  "拖动取消距离": [
+    "Drag cancellation distance",
+    "ドラッグで取り消す距離",
+    "드래그 취소 거리"
+  ],
+  "按住后移动超过此距离，保留正常拖选。": [
+    "Moving beyond this distance keeps normal drag selection.",
+    "この距離を超えて動かすと、通常のドラッグ選択になります。",
+    "누른 채 이 거리 이상 이동하면 일반 드래그 선택을 유지합니다."
+  ],
+  "各应用通用": [
+    "Works across apps",
+    "さまざまなアプリで使用",
+    "여러 앱에서 사용"
+  ],
+  "文字会填入当前有光标的位置。录音与文字转换由所选语音软件完成。": [
+    "Text goes to the focused field. Your voice software handles recording and recognition.",
+    "文字はカーソル位置に入力されます。録音と認識は選択した音声ソフトが行います。",
+    "현재 커서 위치에 텍스트가 입력됩니다. 녹음과 음성 인식은 선택한 음성 소프트웨어가 처리합니다."
+  ],
+  "保存设置": [
+    "Save settings",
+    "設定を保存",
+    "설정 저장"
+  ],
+  "拖动设置需点击保存": [
+    "Save to apply drag settings",
+    "ドラッグ設定は保存が必要です",
+    "드래그 설정은 저장이 필요합니다"
+  ],
+  "语音快捷键": [
+    "Voice shortcuts",
+    "音声ショートカット",
+    "음성 단축키"
+  ],
+  "使用方式": [
+    "Shortcut selection",
+    "使用方法",
+    "사용 방식"
+  ],
+  "使用的语音软件": [
+    "Voice software",
+    "使用する音声ソフト",
+    "사용할 음성 소프트웨어"
+  ],
+  "选择后立即生效，下方编辑当前使用的快捷键。": [
+    "Selection applies immediately. Edit its shortcut below.",
+    "選択はすぐに反映されます。下でショートカットを編集できます。",
+    "선택 즉시 적용됩니다. 아래에서 단축키를 편집하세요."
+  ],
+  "编辑输入法的快捷键": [
+    "Input method to configure",
+    "設定する入力メソッド",
+    "단축키를 설정할 입력기"
+  ],
+  "这里只选择要编辑的输入法，不切换系统输入法；保存后单独生效。": [
+    "Select the input method to edit, without changing the system input method. Save to apply.",
+    "編集対象のみを選択します。システムの入力メソッドは切り替わりません。保存すると反映されます。",
+    "편집할 입력기만 선택하며 시스템 입력기는 바뀌지 않습니다. 저장하면 적용됩니다."
+  ],
+  "原语音软件的启动方式": [
+    "Voice software activation mode",
+    "音声ソフトの開始方式",
+    "음성 소프트웨어 작동 방식"
+  ],
+  "快捷键": [
+    "Shortcut",
+    "ショートカット",
+    "단축키"
+  ],
+  "录入快捷键": [
+    "Record shortcut",
+    "キーを登録",
+    "단축키 입력"
+  ],
+  "结束快捷键": [
+    "Stop shortcut",
+    "終了ショートカット",
+    "종료 단축키"
+  ],
+  "录入结束键": [
+    "Record stop key",
+    "終了キーを登録",
+    "종료 키 입력"
+  ],
+  "快捷键需与原语音软件一致。录入会暂停长按，按键松开后保存。": [
+    "Match your voice software. Capturing pauses hold to talk; save after releasing the keys.",
+    "元の音声ソフトと同じキーにします。登録中は長押しが停止します。キーを離してから保存してください。",
+    "음성 소프트웨어와 동일하게 설정하세요. 단축키 입력 중에는 길게 누르기가 중지됩니다. 키를 놓은 후 저장하세요."
+  ],
+  "配置名称": [
+    "Profile name",
+    "設定名",
+    "프로필 이름"
+  ],
+  "语音软件名称": [
+    "Voice software name",
+    "音声ソフト名",
+    "음성 소프트웨어 이름"
+  ],
+  "另存为新配置": [
+    "Save as new profile",
+    "新しい設定として保存",
+    "새 프로필로 저장"
+  ],
+  "删除当前配置": [
+    "Delete profile",
+    "現在の設定を削除",
+    "현재 프로필 삭제"
+  ],
+  "Windows 平台快捷键": [
+    "Windows shortcut",
+    "Windowsのショートカット",
+    "Windows 단축키"
+  ],
+  "Mac 平台快捷键": [
+    "Mac shortcut",
+    "Macのショートカット",
+    "Mac 단축키"
+  ],
+  "录入 Windows 开始": [
+    "Record Windows start",
+    "Windows開始キー",
+    "Windows 시작 키 입력"
+  ],
+  "录入 Mac 开始": [
+    "Record Mac start",
+    "Mac開始キー",
+    "Mac 시작 키 입력"
+  ],
+  "另一平台的结束快捷键": [
+    "Stop shortcut on the other platform",
+    "別のプラットフォームの終了キー",
+    "다른 플랫폼의 종료 단축키"
+  ],
+  "录入 Windows 结束": [
+    "Record Windows stop",
+    "Windows終了キー",
+    "Windows 종료 키 입력"
+  ],
+  "录入 Mac 结束": [
+    "Record Mac stop",
+    "Mac終了キー",
+    "Mac 종료 키 입력"
+  ],
+  "手动输入用英文逗号分隔，如 LCtrl, LWin。Mac 字母按美式物理键位发送，暂不支持 Fn。": [
+    "Separate keys with commas, e.g. LCtrl, LWin. Mac letters use US physical key positions. Fn is not supported.",
+    "手入力は LCtrl, LWin のように半角カンマで区切ります。Macは米国配列の物理位置を使用します。Fnは非対応です。",
+    "직접 입력 시 LCtrl, LWin처럼 쉼표로 구분하세요. Mac은 미국식 물리 키 위치를 사용합니다. Fn은 지원하지 않습니다."
+  ],
+  "更多设置": [
+    "More settings",
+    "詳細設定",
+    "추가 설정"
+  ],
+  "保存语音配置": [
+    "Save voice profile",
+    "音声設定を保存",
+    "음성 프로필 저장"
+  ],
+  "快捷键修改后点击保存": [
+    "Save after editing shortcuts",
+    "キーの変更後に保存してください",
+    "단축키 변경 후 저장하세요"
+  ],
+  "游戏与应用黑名单": [
+    "Game & app blocklist",
+    "ゲーム・アプリのブロック",
+    "게임 및 앱 차단 목록"
+  ],
+  "这些程序在前台时，长按鼠标不会触发语音。移除后立即恢复使用。": [
+    "Hold to talk is blocked while these apps are in the foreground. Remove an app to allow it again.",
+    "これらのアプリが最前面にある間は無効です。リストから削除すると再び使用できます。",
+    "목록의 앱이 전면에 있을 때 음성 입력이 차단됩니다. 제거하면 즉시 다시 사용할 수 있습니다."
+  ],
+  "添加程序": [
+    "Add an app",
+    "アプリを追加",
+    "앱 추가"
+  ],
+  "加入黑名单": [
+    "Block app",
+    "ブロックする",
+    "차단 목록에 추가"
+  ],
+  "请先从运行中的程序列表选择一个应用。": [
+    "Select a running app first.",
+    "実行中のアプリを先に選択してください。",
+    "실행 중인 앱 목록에서 먼저 앱을 선택하세요."
+  ],
+  "按程序名匹配全部同名实例，升级或换目录后仍有效；程序改名时需重新添加。": [
+    "Matches all instances by executable name, even after upgrades or moves. Add again if renamed.",
+    "実行ファイル名が同じ全インスタンスに適用します。更新や移動後も有効ですが、改名時は再追加が必要です。",
+    "실행 파일 이름이 같은 모든 인스턴스에 적용됩니다. 업데이트나 이동 후에도 유지되며 이름 변경 시 다시 추가해야 합니다."
+  ],
+  "按应用 Bundle ID 匹配，标识不变时升级后仍有效。": [
+    "Matches by Bundle ID and survives upgrades if the ID stays the same.",
+    "Bundle IDで照合します。IDが同じなら更新後も有効です。",
+    "Bundle ID로 일치시킵니다. ID가 같으면 업데이트 후에도 적용됩니다."
+  ],
+  "手动加入": [
+    "Add manually",
+    "手動で追加",
+    "직접 추가"
+  ],
+  "找不到程序？手动填写程序名": [
+    "App not listed? Enter its identifier",
+    "見つからない場合は識別子を入力",
+    "앱이 없나요? 식별자 직접 입력"
+  ],
+  "多软件配置与应用规则": [
+    "Profiles & app rules",
+    "複数ソフトの設定とアプリルール",
+    "여러 소프트웨어 설정 및 앱 규칙"
+  ],
+  "在 JSON 中添加配置；Windows 使用进程名，Mac 使用 Bundle ID。\n未配置的平台不会触发，请按原语音软件设置填写快捷键。": [
+    "Add profiles in JSON. Windows uses process names; Mac uses Bundle IDs.\nUnconfigured platforms do not trigger. Match shortcuts to your voice software.",
+    "JSONで設定を追加できます。Windowsはプロセス名、MacはBundle IDを使用します。\n未設定のプラットフォームでは動作しません。音声ソフトと同じキーを設定してください。",
+    "JSON으로 프로필을 추가하세요. Windows는 프로세스 이름, Mac은 Bundle ID를 사용합니다.\n설정하지 않은 플랫폼에서는 작동하지 않습니다. 음성 소프트웨어와 같은 단축키를 사용하세요."
+  ],
+  "校验并应用": [
+    "Validate & apply",
+    "検証して適用",
+    "검사 및 적용"
+  ],
+  "导入": [
+    "Import",
+    "インポート",
+    "가져오기"
+  ],
+  "导出": [
+    "Export",
+    "エクスポート",
+    "내보내기"
+  ],
+  "本地诊断": [
+    "Local diagnostics",
+    "ローカル診断",
+    "로컬 진단"
+  ],
+  "日志只显示状态与控件类型，不记录输入内容。\n这里的“快捷键保持中”表示已发送按键，不代表已确认录音。": [
+    "Logs show state and control types, never typed content.\n“Shortcut held” means keys were sent; recording has not been confirmed.",
+    "ログには状態とコントロールの種類のみを表示し、入力内容は記録しません。\n「キー保持中」は送信済みの意味で、録音を確認したものではありません。",
+    "로그에는 상태와 컨트롤 유형만 표시하며 입력 내용은 기록하지 않습니다.\n“단축키 유지 중”은 키가 전송되었다는 뜻이며 녹음 확인을 의미하지 않습니다."
+  ],
+  "导出诊断报告": [
+    "Export diagnostic report",
+    "診断レポートを保存",
+    "진단 보고서 내보내기"
+  ],
+  "报告仅包含最近 80 条状态、应用标识及控件探测原因；不含正文、网址或窗口标题。": [
+    "Reports contain the latest 80 states, app identifiers and probe reasons. No text, URLs or window titles.",
+    "直近80件の状態、アプリ識別子、検出理由のみを含みます。本文、URL、ウィンドウ名は含みません。",
+    "최근 상태 80개, 앱 식별자, 감지 사유만 포함됩니다. 본문, URL, 창 제목은 포함되지 않습니다."
+  ],
+  "点击检查后，在 3 秒内点击目标输入框并把鼠标停在里面。\n只查询控件属性，不发送语音快捷键。": [
+    "After clicking Inspect, click the target field within 3 seconds and leave the pointer there.\nOnly control properties are queried; no voice shortcut is sent.",
+    "確認ボタンを押した後、3秒以内に入力欄をクリックしてマウスを置いてください。\n属性の取得のみを行い、音声キーは送信しません。",
+    "확인 버튼을 누른 후 3초 안에 입력란을 클릭하고 마우스를 두세요.\n컨트롤 속성만 조회하며 음성 단축키는 전송하지 않습니다."
+  ],
+  "可在这里测试点击与拖动；全局模式下，长按也会触发语音": [
+    "Test clicks and drags here; holding also triggers voice input in global mode",
+    "ここでクリックやドラッグを試せます。全体モードでは長押しで音声入力も起動します",
+    "여기서 클릭과 드래그를 테스트하세요. 전체 모드에서는 길게 누르면 음성 입력도 시작됩니다"
+  ],
+  "完全退出": [
+    "Quit HoldSpeak",
+    "完全に終了",
+    "완전히 종료"
+  ],
+  "打开 Mac 辅助功能设置": [
+    "Open Mac Accessibility settings",
+    "Macのアクセシビリティ設定を開く",
+    "Mac 손쉬운 사용 설정 열기"
+  ],
+  "常规设置": [
+    "General",
+    "一般設定",
+    "일반 설정"
+  ],
+  "应用规则": [
+    "App rules",
+    "アプリルール",
+    "앱 규칙"
+  ],
+  "高级配置": [
+    "Advanced",
+    "詳細設定",
+    "고급 설정"
+  ],
+  "诊断与帮助": [
+    "Diagnostics",
+    "診断とヘルプ",
+    "진단 및 도움말"
+  ],
+  "切换页面，快捷键录入已取消。": [
+    "Page changed. Shortcut capture cancelled.",
+    "ページが変わったため、キー登録を中止しました。",
+    "페이지가 바뀌어 단축키 입력을 취소했습니다."
+  ],
+  "左键说 · HoldSpeak {0}     |     © 2026 HoldSpeak contributors · MIT": [
+    "HoldSpeak {0}     |     © 2026 HoldSpeak contributors · MIT",
+    "HoldSpeak {0}     |     © 2026 HoldSpeak contributors · MIT",
+    "HoldSpeak {0}     |     © 2026 HoldSpeak contributors · MIT"
+  ],
+  "输入法刷新失败：": [
+    "Could not refresh input methods: ",
+    "入力メソッドを更新できません：",
+    "입력기 새로 고침 실패: "
+  ],
+  "当前输入法无法确认，本次不会发送快捷键": [
+    "Cannot identify the active input method. No shortcut will be sent.",
+    "使用中の入力メソッドを確認できないため、キーを送信しません",
+    "현재 입력기를 확인할 수 없어 단축키를 보내지 않습니다"
+  ],
+  "当前：{0} · 请在此页设置该输入法的快捷键": [
+    "Current: {0} · Set up its shortcut on this page",
+    "現在：{0} · このページでキーを設定してください",
+    "현재: {0} · 이 페이지에서 단축키를 설정하세요"
+  ],
+  "长按": [
+    "Hold",
+    "長押し",
+    "길게 누르기"
+  ],
+  "按一下开始，再按一下结束": [
+    "Press to start, press again to stop",
+    "1回押して開始、もう1回で終了",
+    "한 번 눌러 시작, 다시 눌러 종료"
+  ],
+  "分别开始／结束": [
+    "Separate start / stop",
+    "開始・終了を別々に送信",
+    "시작 / 종료 분리"
+  ],
+  "当前：{0} → {1} · {2}": [
+    "Current: {0} → {1} · {2}",
+    "現在：{0} → {1} · {2}",
+    "현재: {0} → {1} · {2}"
+  ],
+  "当前输入法读取失败，本次不会发送快捷键": [
+    "Could not read the active input method. No shortcut will be sent.",
+    "使用中の入力メソッドを取得できないため、キーを送信しません",
+    "현재 입력기를 읽지 못해 단축키를 보내지 않습니다"
+  ],
+  "已禁用 {0} 个程序 · 修改后自动保存": [
+    "{0} apps blocked · Changes saved automatically",
+    "{0} 件をブロック中 · 変更は自動保存",
+    "앱 {0}개 차단됨 · 변경 자동 저장"
+  ],
+  "还没有添加黑名单": [
+    "No blocked apps yet",
+    "ブロックされたアプリはありません",
+    "차단된 앱이 없습니다"
+  ],
+  "在下方选择正在运行的游戏或应用，点击“加入黑名单”。": [
+    "Select a running game or app below, then click Block app.",
+    "下で実行中のゲームやアプリを選び、「ブロックする」を押してください。",
+    "아래에서 실행 중인 게임이나 앱을 선택한 후 차단 목록에 추가하세요."
+  ],
+  "未禁用 · 保留的旧规则": [
+    "Allowed · Existing rule kept",
+    "許可 · 既存ルールを保持",
+    "허용됨 · 기존 규칙 유지"
+  ],
+  "已禁用 · 在此程序中不触发语音": [
+    "Blocked · Voice shortcuts disabled in this app",
+    "ブロック中 · このアプリでは音声を起動しません",
+    "차단됨 · 이 앱에서 음성 입력 비활성화"
+  ],
+  "禁用": [
+    "Block",
+    "無効にする",
+    "차단"
+  ],
+  "移除": [
+    "Remove",
+    "削除",
+    "제거"
+  ],
+  "移除 ": [
+    "Remove ",
+    "削除 ",
+    "제거 "
+  ],
+  "未找到可选应用，可以手动填写应用标识。": [
+    "No apps found. Enter an app identifier manually.",
+    "アプリが見つかりません。識別子を手動入力できます。",
+    "앱을 찾지 못했습니다. 식별자를 직접 입력할 수 있습니다."
+  ],
+  "已列出 {0} 个应用，选择后点击“加入黑名单”。": [
+    "{0} apps found. Select one and click Block app.",
+    "{0} 件見つかりました。選択して「ブロックする」を押してください。",
+    "앱 {0}개를 찾았습니다. 선택한 후 차단 목록에 추가하세요."
+  ],
+  "读取应用列表失败：": [
+    "Could not list apps: ",
+    "アプリ一覧を取得できません：",
+    "앱 목록 조회 실패: "
+  ],
+  "{0} 已加入黑名单。": [
+    "{0} was added to the blocklist.",
+    "{0} をブロックしました。",
+    "{0}을(를) 차단 목록에 추가했습니다."
+  ],
+  "添加失败：": [
+    "Could not add app: ",
+    "追加できません：",
+    "추가 실패: "
+  ],
+  "没有找到该应用规则。": [
+    "App rule not found.",
+    "アプリのルールが見つかりません。",
+    "앱 규칙을 찾지 못했습니다."
+  ],
+  "{0} 已移除，可正常使用长按说话。": [
+    "{0} removed. Hold to talk is allowed again.",
+    "{0} を削除しました。長押しが再び使用できます。",
+    "{0}을(를) 제거했습니다. 길게 눌러 말하기를 다시 사용할 수 있습니다."
+  ],
+  "移除失败：": [
+    "Could not remove app: ",
+    "削除できません：",
+    "제거 실패: "
+  ],
+  "请在 3 秒内点击目标输入框，将鼠标留在输入框内。检查期间已暂停长按。": [
+    "Click the target field within 3 seconds and leave the pointer there. Hold to talk is paused.",
+    "3秒以内に入力欄をクリックしてマウスを置いてください。確認中は長押しが停止します。",
+    "3초 안에 입력란을 클릭하고 마우스를 두세요. 확인 중에는 길게 누르기가 중지됩니다."
+  ],
+  "检查结果：{0} · 应用：{1} · 控件：{2} · 原因：{3}": [
+    "Result: {0} · App: {1} · Control: {2} · Reason: {3}",
+    "結果：{0} · アプリ：{1} · 種類：{2} · 理由：{3}",
+    "결과: {0} · 앱: {1} · 컨트롤: {2} · 사유: {3}"
+  ],
+  "检查失败：": [
+    "Inspection failed: ",
+    "確認に失敗しました：",
+    "확인 실패: "
+  ],
+  "快捷键录入已取消，原设置保留。": [
+    "Shortcut capture cancelled. Previous settings kept.",
+    "キー登録を中止しました。元の設定を保持します。",
+    "단축키 입력을 취소했습니다. 기존 설정을 유지합니다."
+  ],
+  "快捷键已录入，请点击“保存语音配置”。长按仍处于暂停状态。": [
+    "Shortcut captured. Click Save voice profile. Hold to talk remains paused.",
+    "キーを登録しました。「音声設定を保存」を押してください。長押しは停止中です。",
+    "단축키를 입력했습니다. 음성 프로필 저장을 누르세요. 길게 누르기는 중지 상태입니다."
+  ],
+  "无法聚焦按键录入框，请重试。": [
+    "Could not focus the shortcut field. Try again.",
+    "キー入力欄にフォーカスできません。再試行してください。",
+    "단축키 입력란에 포커스를 둘 수 없습니다. 다시 시도하세요."
+  ],
+  "请先松开所有键，再按一次组合键并全部松开。Esc 取消；10 秒后超时。": [
+    "Release all keys, press the shortcut, then release. Esc cancels; timeout is 10 seconds.",
+    "すべてのキーを離し、組み合わせを押してから離してください。Escで中止、10秒でタイムアウトします。",
+    "모든 키를 놓고 단축키를 누른 후 놓으세요. Esc로 취소하며 10초 후 시간이 초과됩니다."
+  ],
+  "当前固定使用：{0}": [
+    "Fixed shortcut: {0}",
+    "固定ショートカット：{0}",
+    "고정 단축키: {0}"
+  ],
+  "请先选择要设置的输入法。": [
+    "Select an input method first.",
+    "設定する入力メソッドを選択してください。",
+    "설정할 입력기를 먼저 선택하세요."
+  ],
+  "语音配置已保存。": [
+    "Voice profile saved.",
+    "音声設定を保存しました。",
+    "음성 프로필을 저장했습니다."
+  ],
+  "无法保存：": [
+    "Could not save: ",
+    "保存できません：",
+    "저장할 수 없음: "
+  ],
+  "至少保留一个语音配置。": [
+    "Keep at least one voice profile.",
+    "音声設定を1つ以上残してください。",
+    "음성 프로필을 하나 이상 유지해야 합니다."
+  ],
+  "该配置被输入法或应用规则引用，请先解除关联。": [
+    "This profile is used by an input method or app rule. Unlink it first.",
+    "入力メソッドまたはアプリルールが使用中です。先に関連付けを解除してください。",
+    "입력기 또는 앱 규칙에서 사용 중입니다. 먼저 연결을 해제하세요."
+  ],
+  "语音配置已删除。": [
+    "Voice profile deleted.",
+    "音声設定を削除しました。",
+    "음성 프로필을 삭제했습니다."
+  ],
+  "删除失败：": [
+    "Could not delete: ",
+    "削除に失敗しました：",
+    "삭제 실패: "
+  ],
+  "设置已保存；活动会话会先结束。": [
+    "Settings saved. Any active session will end first.",
+    "設定を保存しました。動作中のセッションは先に終了します。",
+    "설정을 저장했습니다. 진행 중인 세션은 먼저 종료됩니다."
+  ],
+  "保存失败：": [
+    "Save failed: ",
+    "保存に失敗しました：",
+    "저장 실패: "
+  ],
+  "无法读取开机自启动状态：": [
+    "Could not read login startup status: ",
+    "自動起動の状態を取得できません：",
+    "자동 실행 상태 조회 실패: "
+  ],
+  "配置校验通过并已保存。": [
+    "Settings validated and saved.",
+    "設定を検証し、保存しました。",
+    "설정을 검사하고 저장했습니다."
+  ],
+  "配置无效：": [
+    "Invalid settings: ",
+    "無効な設定：",
+    "잘못된 설정: "
+  ],
+  "平台监听启动期间发生故障，请重新启用。": [
+    "The input listener failed to start. Enable it again.",
+    "入力監視の起動に失敗しました。再度有効にしてください。",
+    "입력 감시 시작에 실패했습니다. 다시 켜세요."
+  ],
+  "无法启用：": [
+    "Could not enable: ",
+    "有効にできません：",
+    "활성화 실패: "
+  ],
+  "已启用": [
+    "Enabled",
+    "有効",
+    "켜짐"
+  ],
+  "待恢复": [
+    "Recovery needed",
+    "復旧待ち",
+    "복구 대기"
+  ],
+  "正在启动全局长按监听…": [
+    "Starting mouse listener…",
+    "マウス監視を開始しています…",
+    "마우스 감시 시작 중…"
+  ],
+  "识别未启用，请查看提示": [
+    "Not enabled. Check the message above.",
+    "有効になっていません。メッセージを確認してください",
+    "켜지지 않았습니다. 안내를 확인하세요"
+  ],
+  " · 正在自动恢复…": [
+    " · Recovering automatically…",
+    " · 自動復旧中…",
+    " · 자동 복구 중…"
+  ],
+  "监听已自动恢复 · 可以继续长按说话": [
+    "Listener recovered · Hold to talk is ready",
+    "監視が復旧しました · 長押しを使用できます",
+    "감시 복구됨 · 길게 눌러 말하기 사용 가능"
+  ],
+  "自动恢复未成功，请点击重新启用；诊断报告保留了故障原因。": [
+    "Automatic recovery failed. Enable again; details are in the diagnostic report.",
+    "自動復旧に失敗しました。再度有効にしてください。原因は診断レポートに記録されています。",
+    "자동 복구에 실패했습니다. 다시 켜세요. 원인은 진단 보고서에 기록되었습니다."
+  ],
+  "全局长按 · 不检测输入框 · 松开鼠标结束": [
+    "Global hold · Release mouse to finish",
+    "全体で長押し · マウスを離して終了",
+    "전체 길게 누르기 · 마우스를 놓으면 종료"
+  ],
+  "宽松模式：未知位置允许触发，明确不可输入的位置拒绝。": [
+    "Relaxed mode: unknown targets allowed; confirmed non-input targets blocked.",
+    "緩和モード：不明な場所は許可し、入力不可と確認された場所は拒否します。",
+    "완화 모드: 알 수 없는 대상은 허용하고 입력 불가가 확인된 대상은 차단합니다."
+  ],
+  "严格模式：只在确认可编辑的输入框内触发。": [
+    "Strict mode: only confirmed editable fields allowed.",
+    "厳格モード：編集可能と確認された入力欄のみ許可します。",
+    "엄격 모드: 편집 가능한 입력란으로 확인된 경우에만 허용합니다."
+  ],
+  "控件：{0} · {1}": [
+    "Control: {0} · {1}",
+    "種類：{0} · {1}",
+    "컨트롤: {0} · {1}"
+  ],
+  " · 探测：{0}": [
+    " · Probe: {0}",
+    " · 検出：{0}",
+    " · 감지: {0}"
+  ],
+  "诊断报告已导出。": [
+    "Diagnostic report exported.",
+    "診断レポートを保存しました。",
+    "진단 보고서를 내보냈습니다."
+  ],
+  "导出诊断失败：": [
+    "Could not export diagnostics: ",
+    "診断レポートを保存できません：",
+    "진단 내보내기 실패: "
+  ],
+  "导入配置": [
+    "Import settings",
+    "設定をインポート",
+    "설정 가져오기"
+  ],
+  "导入校验通过，点击“校验并应用”保存。": [
+    "Import validated. Click Validate & apply to save.",
+    "インポートを検証しました。「検証して適用」で保存してください。",
+    "가져온 설정을 검사했습니다. 검사 및 적용을 눌러 저장하세요."
+  ],
+  "导入失败：": [
+    "Import failed: ",
+    "インポートに失敗しました：",
+    "가져오기 실패: "
+  ],
+  "配置已导出。": [
+    "Settings exported.",
+    "設定をエクスポートしました。",
+    "설정을 내보냈습니다."
+  ],
+  "导出失败：": [
+    "Export failed: ",
+    "エクスポートに失敗しました：",
+    "내보내기 실패: "
+  ],
+  "打开左键说": [
+    "Open HoldSpeak",
+    "HoldSpeakを開く",
+    "HoldSpeak 열기"
+  ],
+  "启用／暂停": [
+    "Enable / pause",
+    "有効／一時停止",
+    "켜기 / 일시 중지"
+  ],
+  "退出": [
+    "Quit",
+    "終了",
+    "종료"
+  ],
+  "长按说话开关": [
+    "Hold to talk switch",
+    "長押しで話すスイッチ",
+    "길게 눌러 말하기 스위치"
+  ],
+  "开启或暂停长按说话": [
+    "Enable or pause hold to talk",
+    "長押しで話す機能を有効／停止",
+    "길게 눌러 말하기 켜기 또는 일시 중지"
+  ],
+  "此按键暂不支持，请手动填写已支持的按键。": [
+    "This key is unsupported. Enter a supported key manually.",
+    "このキーには対応していません。対応するキーを手入力してください。",
+    "지원하지 않는 키입니다. 지원되는 키를 직접 입력하세요."
+  ],
+  "录入前已有修饰键按住，请松开所有键后重新录入。": [
+    "A modifier was already held. Release all keys and try again.",
+    "修飾キーが押されています。すべて離してから登録してください。",
+    "보조 키가 이미 눌려 있습니다. 모든 키를 놓고 다시 입력하세요."
+  ],
+  "请同时按下一个组合键，不支持连续快捷键序列。": [
+    "Press one key combination together. Shortcut sequences are not supported.",
+    "1つの組み合わせを同時に押してください。連続キーには対応していません。",
+    "하나의 키 조합을 동시에 누르세요. 연속 단축키는 지원하지 않습니다."
+  ],
+  "组合键最多包含 5 个不同按键。": [
+    "A shortcut can contain up to 5 different keys.",
+    "組み合わせは最大5キーです。",
+    "단축키는 서로 다른 키 5개까지 가능합니다."
+  ],
+  "无法确定程序路径。": [
+    "Could not determine the application path.",
+    "プログラムの場所を特定できません。",
+    "프로그램 경로를 확인할 수 없습니다."
+  ],
+  "请使用发布包中的程序设置开机自启动。": [
+    "Use the published app to configure launch at login.",
+    "配布版のプログラムで自動起動を設定してください。",
+    "배포된 프로그램에서 자동 실행을 설정하세요."
+  ],
+  "当前系统不支持开机自启动。": [
+    "Launch at login is not supported on this system.",
+    "このシステムは自動起動に対応していません。",
+    "이 시스템에서는 자동 실행을 지원하지 않습니다."
+  ],
+  "Ctrl + Win 长按": [
+    "Ctrl + Win hold",
+    "Ctrl + Win 長押し",
+    "Ctrl + Win 길게 누르기"
+  ],
+  "配置集合不能为空。": [
+    "Settings collections cannot be null.",
+    "設定のコレクションはnullにできません。",
+    "설정 컬렉션은 null일 수 없습니다."
+  ],
+  "不支持的配置版本。": [
+    "Unsupported settings version.",
+    "未対応の設定バージョンです。",
+    "지원하지 않는 설정 버전입니다."
+  ],
+  "输入法映射无效、重复或引用了不存在的快捷键配置。": [
+    "Input method bindings are invalid, duplicated or refer to a missing profile.",
+    "入力メソッドの関連付けが無効、重複、または存在しない設定を参照しています。",
+    "입력기 연결이 잘못되었거나 중복되었거나 없는 프로필을 참조합니다."
+  ],
+  "长按、移动容差或探测超时超出允许范围。": [
+    "Hold delay, movement tolerance or probe timeout is out of range.",
+    "長押し時間、移動許容値、検出タイムアウトが範囲外です。",
+    "길게 누르기 시간, 이동 허용 거리 또는 감지 시간이 범위를 벗어났습니다."
+  ],
+  "配置 ID 必须唯一，且默认配置必须存在。": [
+    "Profile IDs must be unique and the default profile must exist.",
+    "設定IDは一意で、既定の設定が存在する必要があります。",
+    "프로필 ID는 고유해야 하며 기본 프로필이 있어야 합니다."
+  ],
+  "语音配置字段不能为空。": [
+    "Voice profile fields cannot be empty.",
+    "音声設定の項目は空にできません。",
+    "음성 프로필 필드는 비워 둘 수 없습니다."
+  ],
+  "动作协议或最长保持时间无效。": [
+    "Invalid activation mode or maximum hold duration.",
+    "開始方式または最大保持時間が無効です。",
+    "작동 방식 또는 최대 유지 시간이 잘못되었습니다."
+  ],
+  "至少配置一个平台的快捷键。": [
+    "Configure a shortcut for at least one platform.",
+    "少なくとも1つのプラットフォームにキーを設定してください。",
+    "하나 이상의 플랫폼에 단축키를 설정하세요."
+  ],
+  "辅助窗口应用标识不能为空。": [
+    "Overlay app identifiers cannot be empty.",
+    "補助ウィンドウの識別子は空にできません。",
+    "보조 창 앱 식별자는 비워 둘 수 없습니다."
+  ],
+  "应用规则必须唯一，引用的语音配置必须存在。": [
+    "App rules must be unique and reference existing profiles.",
+    "アプリルールは一意で、参照する音声設定が存在する必要があります。",
+    "앱 규칙은 고유해야 하며 참조하는 음성 프로필이 있어야 합니다."
+  ],
+  "快捷键为空、重复或包含不支持的平台按键。": [
+    "Shortcut is empty, duplicated or uses unsupported platform keys.",
+    "キーが空、重複、またはプラットフォームに非対応です。",
+    "단축키가 비어 있거나 중복되었거나 지원되지 않는 키를 포함합니다."
+  ],
+  "配置不能为空。": [
+    "Settings cannot be empty.",
+    "設定は空にできません。",
+    "설정은 비워 둘 수 없습니다."
+  ],
+  "执行异常，已暂停；请重新启用工具": [
+    "Execution failed. Paused; enable the tool again.",
+    "実行エラーで停止しました。再度有効にしてください",
+    "실행 오류로 중지되었습니다. 도구를 다시 켜세요"
+  ],
+  "设置已更新": [
+    "Settings updated",
+    "設定を更新しました",
+    "설정이 업데이트되었습니다"
+  ],
+  "全局长按已启用 · 按住左键说话": [
+    "Hold to talk enabled · Hold the left button to speak",
+    "長押しが有効です · 左ボタンを押して話してください",
+    "길게 눌러 말하기 켜짐 · 왼쪽 버튼을 누르고 말하세요"
+  ],
+  "等待输入框内长按": [
+    "Waiting for a hold in an input field",
+    "入力欄での長押しを待機中",
+    "입력란에서 길게 누르기 대기 중"
+  ],
+  "快捷键已释放": [
+    "Shortcut released",
+    "キーを離しました",
+    "단축키를 놓았습니다"
+  ],
+  "本次手势已取消": [
+    "Gesture cancelled",
+    "操作を取り消しました",
+    "동작을 취소했습니다"
+  ],
+  "保留双击／多击操作": [
+    "Double / multiple click preserved",
+    "ダブルクリック／連続クリックを維持",
+    "더블 클릭 / 여러 번 클릭 유지"
+  ],
+  "全局长按 · 按住左键开始说话": [
+    "Hold the left button to start speaking",
+    "左ボタンを長押しして話し始めてください",
+    "왼쪽 버튼을 길게 눌러 말하기 시작"
+  ],
+  "正在确认输入框": [
+    "Checking input field",
+    "入力欄を確認中",
+    "입력란 확인 중"
+  ],
+  "当前位置明确不可输入": [
+    "This location is not editable",
+    "ここは入力できません",
+    "현재 위치에는 입력할 수 없습니다"
+  ],
+  "当前应用已禁用": [
+    "Current app blocked",
+    "現在のアプリは無効です",
+    "현재 앱이 차단되었습니다"
+  ],
+  "保留拖动选字操作": [
+    "Drag selection preserved",
+    "ドラッグ選択を維持",
+    "드래그 선택 유지"
+  ],
+  "说话已结束：{0}": [
+    "Voice gesture ended: {0}",
+    "音声操作を終了：{0}",
+    "음성 동작 종료: {0}"
+  ],
+  "输入目标已改变": [
+    "Input target changed",
+    "入力先が変わりました",
+    "입력 대상이 변경되었습니다"
+  ],
+  "未确认可编辑输入框": [
+    "Editable input field not confirmed",
+    "編集可能な入力欄を確認できません",
+    "편집 가능한 입력란을 확인하지 못했습니다"
+  ],
+  "鼠标已松开": [
+    "Mouse button released",
+    "マウスを離しました",
+    "마우스 버튼을 놓았습니다"
+  ],
+  "已达到最长保持时间": [
+    "Maximum hold duration reached",
+    "最大保持時間に達しました",
+    "최대 유지 시간에 도달했습니다"
+  ],
+  "输入框探测超时": [
+    "Input field check timed out",
+    "入力欄の確認がタイムアウトしました",
+    "입력란 감지 시간이 초과되었습니다"
+  ],
+  "前台应用已改变": [
+    "Foreground app changed",
+    "最前面のアプリが変わりました",
+    "전면 앱이 변경되었습니다"
+  ],
+  "前台窗口已改变": [
+    "Foreground window changed",
+    "最前面のウィンドウが変わりました",
+    "전면 창이 변경되었습니다"
+  ],
+  "正在保持快捷键": [
+    "Holding shortcut",
+    "キーを保持中",
+    "단축키 유지 중"
+  ],
+  "当前输入法未配置快捷键": [
+    "No shortcut configured for the active input method",
+    "使用中の入力メソッドにキーが未設定です",
+    "현재 입력기에 단축키가 설정되지 않았습니다"
+  ],
+  "快捷键保持中 · 未确认输入框，按宽松模式触发": [
+    "Shortcut held · Unconfirmed field allowed by relaxed mode",
+    "キー保持中 · 未確認の入力欄を緩和モードで許可",
+    "단축키 유지 중 · 완화 모드로 확인되지 않은 입력란 허용"
+  ],
+  "快捷键保持中 · 松开鼠标结束": [
+    "Shortcut held · Release mouse to finish",
+    "キー保持中 · マウスを離して終了",
+    "단축키 유지 중 · 마우스를 놓으면 종료"
+  ],
+  "无法开始：": [
+    "Could not start: ",
+    "開始できません：",
+    "시작 실패: "
+  ],
+  "切换应用，已结束快捷键": [
+    "App switched; shortcut ended",
+    "アプリ切り替えによりキーを終了しました",
+    "앱 전환으로 단축키를 종료했습니다"
+  ],
+  "切换窗口，已结束快捷键": [
+    "Window switched; shortcut ended",
+    "ウィンドウ切り替えによりキーを終了しました",
+    "창 전환으로 단축키를 종료했습니다"
+  ],
+  "无法继续确认输入目标，已结束快捷键": [
+    "Input target could not be confirmed; shortcut ended",
+    "入力先を確認できなくなったため、キーを終了しました",
+    "입력 대상을 계속 확인할 수 없어 단축키를 종료했습니다"
+  ],
+  "鼠标处是输入框 · 长按即可说话": [
+    "Input field detected · Hold to talk",
+    "入力欄です · 長押しで話せます",
+    "입력란 감지됨 · 길게 눌러 말하세요"
+  ],
+  "未确认输入框 · 允许长按说话": [
+    "Input field unconfirmed · Hold to talk allowed",
+    "入力欄未確認 · 長押しは許可されています",
+    "입력란 미확인 · 길게 눌러 말하기 허용"
+  ],
+  "当前位置不可触发语音": [
+    "Voice input is blocked here",
+    "ここでは音声入力を開始できません",
+    "현재 위치에서 음성 입력을 시작할 수 없습니다"
+  ],
+  "当前前台应用无法确认，请重新长按": [
+    "Cannot identify the foreground app. Hold again.",
+    "最前面のアプリを確認できません。もう一度長押ししてください",
+    "전면 앱을 확인할 수 없습니다. 다시 길게 누르세요"
+  ],
+  "前台 {0} 在黑名单中，本次不触发语音": [
+    "Foreground app {0} is blocked. No voice shortcut sent.",
+    "最前面の {0} はブロックされています。キーは送信しません",
+    "전면 앱 {0}은(는) 차단되어 음성 단축키를 보내지 않습니다"
+  ],
+  "启动前切换了前台应用，请重新长按": [
+    "Foreground app changed before activation. Hold again.",
+    "開始前に最前面のアプリが変わりました。再度長押ししてください",
+    "시작 전에 전면 앱이 바뀌었습니다. 다시 길게 누르세요"
+  ],
+  "当前输入法未配置快捷键，请到语音软件页设置": [
+    "Set up a shortcut for the active input method under Voice shortcuts.",
+    "音声ショートカットで使用中の入力メソッドのキーを設定してください",
+    "음성 단축키에서 현재 입력기의 단축키를 설정하세요"
+  ],
+  "正在发送语音快捷键": [
+    "Sending voice shortcut",
+    "音声キーを送信中",
+    "음성 단축키 전송 중"
+  ],
+  "无法读取当前前台应用：": [
+    "Could not read foreground app: ",
+    "最前面のアプリを取得できません：",
+    "전면 앱 조회 실패: "
+  ],
+  "快捷键已发送 · {0} ms · 松开鼠标结束": [
+    "Shortcut sent · {0} ms · Release mouse to finish",
+    "キー送信済み · {0} ms · マウスを離して終了",
+    "단축키 전송됨 · {0} ms · 마우스를 놓으면 종료"
+  ],
+  "工具已停止": [
+    "Tool stopped",
+    "ツールを停止しました",
+    "도구가 중지되었습니다"
+  ],
+  "焦点进入密码框": [
+    "Focus moved to a password field",
+    "パスワード欄にフォーカスが移りました",
+    "비밀번호 입력란으로 포커스 이동"
+  ],
+  "输入框响应超时": [
+    "Input field response timed out",
+    "入力欄の応答がタイムアウトしました",
+    "입력란 응답 시간이 초과되었습니다"
+  ],
+  "无法确认当前输入框（{0}）": [
+    "Cannot confirm input field ({0})",
+    "入力欄を確認できません（{0}）",
+    "현재 입력란 확인 실패 ({0})"
+  ],
+  "焦点已切换到其他输入框": [
+    "Focus moved to another input field",
+    "別の入力欄にフォーカスが移りました",
+    "다른 입력란으로 포커스가 이동했습니다"
+  ],
+  "结束失败：": [
+    "Could not stop: ",
+    "終了できません：",
+    "종료 실패: "
+  ],
+  "微信输入法": [
+    "WeType",
+    "WeType（微信入力）",
+    "WeType (위챗 입력기)"
+  ],
+  "搜狗输入法": [
+    "Sogou Input",
+    "Sogou入力",
+    "Sogou 입력기"
+  ],
+  "未知按键：": [
+    "Unknown key: ",
+    "不明なキー：",
+    "알 수 없는 키: "
+  ],
+  "另一个 HoldSpeak 实例正在占用输入监听，或监听锁无法打开。请完全退出旧实例后重试。": [
+    "Another HoldSpeak instance is using the input listener, or its lock is unavailable. Quit the other instance and try again.",
+    "別のHoldSpeakが入力監視を使用中か、ロックを開けません。古いインスタンスを終了して再試行してください。",
+    "다른 HoldSpeak 인스턴스가 입력 감시를 사용 중이거나 잠금을 열 수 없습니다. 기존 인스턴스를 종료하고 다시 시도하세요."
+  ],
+  "无法定位程序路径。": [
+    "Could not locate the application.",
+    "プログラムの場所が見つかりません。",
+    "프로그램 경로를 찾을 수 없습니다."
+  ],
+  "辅助功能接口预热失败。": [
+    "Accessibility initialization failed.",
+    "アクセシビリティの初期化に失敗しました。",
+    "접근성 인터페이스 초기화 실패."
+  ],
+  "无法启动输入框探测进程。": [
+    "Could not start input field detection.",
+    "入力欄の検出プロセスを開始できません。",
+    "입력란 감지 프로세스를 시작할 수 없습니다."
+  ],
+  "探测进程已退出。": [
+    "Detection process exited.",
+    "検出プロセスが終了しました。",
+    "감지 프로세스가 종료되었습니다."
+  ],
+  "无效探测结果。": [
+    "Invalid detection result.",
+    "無効な検出結果です。",
+    "잘못된 감지 결과입니다."
+  ],
+  "无法启动按键恢复进程。": [
+    "Could not start key recovery process.",
+    "キー復旧プロセスを開始できません。",
+    "키 복구 프로세스를 시작할 수 없습니다."
+  ],
+  "恢复进程不可用，请重新启用工具。": [
+    "Recovery process unavailable. Enable the tool again.",
+    "復旧プロセスを利用できません。再度有効にしてください。",
+    "복구 프로세스를 사용할 수 없습니다. 도구를 다시 켜세요."
+  ],
+  "恢复进程无响应。": [
+    "Recovery process is not responding.",
+    "復旧プロセスが応答しません。",
+    "복구 프로세스가 응답하지 않습니다."
+  ],
+  "结束快捷键与实体按键冲突，请在原软件中结束录音。": [
+    "Stop shortcut conflicts with a held physical key. Stop recording in your voice software.",
+    "終了キーと押下中のキーが競合しています。音声ソフトで録音を終了してください。",
+    "종료 단축키가 실제 눌린 키와 충돌합니다. 음성 소프트웨어에서 녹음을 종료하세요."
+  ],
+  "快捷键或键盘修饰键已按下，请先松开。": [
+    "A shortcut or modifier key is held. Release it first.",
+    "ショートカットまたは修飾キーが押されています。先に離してください。",
+    "단축키 또는 보조 키가 눌려 있습니다. 먼저 놓으세요."
+  ],
+  "普通权限运行；管理员应用需要另行验证": [
+    "Running without elevation; administrator apps require separate verification",
+    "通常権限で動作中。管理者アプリは別途検証が必要です",
+    "일반 권한으로 실행 중. 관리자 앱은 별도 확인 필요"
+  ],
+  "无法获取鼠标位置。": [
+    "Could not read mouse position.",
+    "マウス位置を取得できません。",
+    "마우스 위치를 가져올 수 없습니다."
+  ],
+  "按键恢复进程失联，已暂停；请重新启用工具": [
+    "Key recovery process disconnected. Paused; enable again.",
+    "キー復旧プロセスが切断されました。停止中です。再度有効にしてください",
+    "키 복구 프로세스 연결이 끊어져 중지되었습니다. 다시 켜세요"
+  ],
+  "鼠标监听无响应，正在自动重建": [
+    "Mouse listener unresponsive. Rebuilding automatically.",
+    "マウス監視が応答しないため、自動再構築しています",
+    "마우스 감시가 응답하지 않아 자동 재생성 중입니다"
+  ],
+  "鼠标监听需要重建": [
+    "Mouse listener needs rebuilding",
+    "マウス監視の再構築が必要です",
+    "마우스 감시 재생성이 필요합니다"
+  ],
+  "鼠标已经松开。": [
+    "Mouse button has already been released.",
+    "マウスはすでに離されています。",
+    "마우스 버튼이 이미 놓였습니다."
+  ],
+  "请先配置 Windows 快捷键。": [
+    "Configure the Windows shortcut first.",
+    "先にWindowsのキーを設定してください。",
+    "먼저 Windows 단축키를 설정하세요."
+  ],
+  "不支持的 Windows 按键。": [
+    "Unsupported Windows key.",
+    "未対応のWindowsキーです。",
+    "지원하지 않는 Windows 키입니다."
+  ],
+  "按键注入失败，可能存在权限限制。": [
+    "Key injection failed, possibly due to permissions.",
+    "キーの送信に失敗しました。権限が制限されている可能性があります。",
+    "키 전송에 실패했습니다. 권한 제한일 수 있습니다."
+  ],
+  "辅助功能和输入监控权限已就绪": [
+    "Accessibility and Input Monitoring permissions ready",
+    "アクセシビリティと入力監視の権限が有効です",
+    "손쉬운 사용 및 입력 모니터링 권한 준비됨"
+  ],
+  "请授予辅助功能及输入监控权限，然后重新启动": [
+    "Grant Accessibility and Input Monitoring permissions, then restart",
+    "アクセシビリティと入力監視を許可して再起動してください",
+    "손쉬운 사용 및 입력 모니터링 권한을 허용한 후 다시 시작하세요"
+  ],
+  "无法创建输入事件监听，请检查系统权限。": [
+    "Could not create input listener. Check system permissions.",
+    "入力監視を作成できません。システムの権限を確認してください。",
+    "입력 감시를 생성할 수 없습니다. 시스템 권한을 확인하세요."
+  ],
+  "输入监听被系统停用，正在自动重建": [
+    "Input listener disabled by the system. Rebuilding automatically.",
+    "システムが入力監視を無効にしたため、自動再構築しています",
+    "시스템이 입력 감시를 꺼서 자동 재생성 중입니다"
+  ],
+  "输入监听需要恢复": [
+    "Input listener needs recovery",
+    "入力監視の復旧が必要です",
+    "입력 감시 복구가 필요합니다"
+  ],
+  "请先配置 Mac 快捷键。": [
+    "Configure the Mac shortcut first.",
+    "先にMacのキーを設定してください。",
+    "먼저 Mac 단축키를 설정하세요."
+  ],
+  "无法创建鼠标事件。": [
+    "Could not create mouse event.",
+    "マウスイベントを作成できません。",
+    "마우스 이벤트를 생성할 수 없습니다."
+  ],
+  "无法创建键盘事件。": [
+    "Could not create keyboard event.",
+    "キーボードイベントを作成できません。",
+    "키보드 이벤트를 생성할 수 없습니다."
+  ],
+  "不支持的 macOS 按键。": [
+    "Unsupported macOS key.",
+    "未対応のmacOSキーです。",
+    "지원하지 않는 macOS 키입니다."
+  ],
+  "按住左键，让想法成文。": [
+    "Hold the left button. Turn thoughts into words.",
+    "左ボタンを押して、思いを文字に。",
+    "왼쪽 버튼을 누르고 생각을 글로."
+  ],
+  "界面语言": [
+    "Interface language",
+    "表示言語",
+    "표시 언어"
+  ],
+  "语言选择会自动保存，重启软件后生效。": [
+    "Saved automatically. Restart HoldSpeak to apply the language.",
+    "自動保存されます。言語は再起動後に反映されます。",
+    "자동 저장됩니다. 언어는 소프트웨어를 다시 시작하면 적용됩니다."
+  ],
+  "语言已保存，请完全退出软件后重新打开。": [
+    "Language saved. Quit HoldSpeak and reopen it to apply.",
+    "言語を保存しました。HoldSpeakを完全に終了して開き直してください。",
+    "언어를 저장했습니다. HoldSpeak를 완전히 종료한 후 다시 여세요."
+  ],
+  "语言保存失败：": [
+    "Could not save language: ",
+    "言語を保存できません：",
+    "언어 저장 실패: "
+  ],
+  "语音入口 · 请配置 Mac 快捷键": [
+    "Voice input · Configure Mac shortcut",
+    "音声入力 · Macのキーを設定",
+    "음성 입력 · Mac 단축키 설정 필요"
+  ],
+  "导出配置": [
+    "Export settings",
+    "設定をエクスポート",
+    "설정 내보내기"
+  ]
+}

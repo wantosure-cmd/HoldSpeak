@@ -17,15 +17,17 @@ The shortcut must use keys supported by HoldSpeak. Fn alone cannot currently be 
 ## Install and use
 
 1. Download the Windows portable ZIP from [Releases](https://github.com/wantosure-cmd/HoldSpeak/releases), extract it and run `HoldSpeak.App.exe`.
-2. Under **语音快捷键** (Voice shortcuts), select a fixed shortcut or follow the current input method. Set the shortcut to match your voice software and save.
+2. Under **Voice shortcuts**, select a fixed shortcut or follow the current input method. Set the shortcut to match your voice software and save.
 3. Click where you want to type, hold the left mouse button while speaking, and release to finish.
-4. To prevent accidental activation in a game, select it under **应用规则** (App rules) and add it to the blocklist. Entries can be removed directly from the list.
-5. Closing the window hides it in the system tray. Use the tray menu to quit; enable login startup in **常规设置** (General settings) if desired.
+4. To prevent accidental activation in a game, select it under **App rules** and add it to the blocklist. Entries can be removed directly from the list.
+5. Closing the window hides it in the system tray. Use the tray menu to quit; enable login startup in **General** if desired.
 
-The screenshots use test settings. The current application interface is in Chinese.
+**Interface languages:** Simplified Chinese, English, Japanese and Korean. Choose a language under **常规设置 → 界面语言** (General → Interface language). It is saved automatically. Quit from the tray menu and reopen HoldSpeak to apply. The interface language is independent of recognition; configure recognition languages in your voice software.
 
-![General settings](docs/images/general-zh.png)
-![Voice shortcuts](docs/images/shortcuts-zh.png)
-![App blocklist](docs/images/blacklist-zh.png)
+The screenshots below use test settings. Input method and user-defined profile names may retain their original language.
+
+![General settings](docs/images/general-en.png)
+![Voice shortcuts](docs/images/shortcuts-en.png)
+![App blocklist](docs/images/blacklist-en.png)
 
 [Contributing](CONTRIBUTING.md) · [Compatibility and validation](docs/compatibility.md) · [Changelog](CHANGELOG.md) · [MIT License](LICENSE)

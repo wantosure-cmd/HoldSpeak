@@ -13,14 +13,14 @@ internal sealed class ShortcutCapture(bool mac)
 
     public void Press(InputKey logical, PhysicalKey physical, KeyModifiers modifiers)
     {
-        var key = Map(logical, physical, mac) ?? throw new InvalidDataException("此按键暂不支持，请手动填写已支持的按键。");
+        var key = Map(logical, physical, mac) ?? throw new InvalidDataException(L.T("此按键暂不支持，请手动填写已支持的按键。"));
         var expected = down.Aggregate(Modifier(key), (flags, held) => flags | Modifier(held));
         var relevant = KeyModifiers.Control | KeyModifiers.Alt | KeyModifiers.Shift | KeyModifiers.Meta;
         if ((modifiers & relevant & ~expected) != 0)
-            throw new InvalidDataException("录入前已有修饰键按住，请松开所有键后重新录入。");
+            throw new InvalidDataException(L.T("录入前已有修饰键按住，请松开所有键后重新录入。"));
         if (down.Contains(key)) return; // Ignore OS key repeat.
-        if (releasing) throw new InvalidDataException("请同时按下一个组合键，不支持连续快捷键序列。");
-        if (chord.Count == 5) throw new InvalidDataException("组合键最多包含 5 个不同按键。");
+        if (releasing) throw new InvalidDataException(L.T("请同时按下一个组合键，不支持连续快捷键序列。"));
+        if (chord.Count == 5) throw new InvalidDataException(L.T("组合键最多包含 5 个不同按键。"));
         down.Add(key); chord.Add(key);
     }
 

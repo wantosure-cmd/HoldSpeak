@@ -23,8 +23,8 @@ public sealed class IosSwitch : ToggleButton
         Width = MinWidth = 52; Height = MinHeight = 32;
         Padding = new Thickness(0); BorderThickness = new Thickness(0);
         VerticalAlignment = VerticalAlignment.Center;
-        AutomationProperties.SetName(this, "长按说话开关");
-        ToolTip.SetTip(this, "开启或暂停长按说话");
+        AutomationProperties.SetName(this, L.T("长按说话开关"));
+        ToolTip.SetTip(this, L.T("开启或暂停长按说话"));
         track.Child = thumb;
         Template = new FuncControlTemplate<IosSwitch>((_, _) => track);
         PropertyChanged += (_, e) =>

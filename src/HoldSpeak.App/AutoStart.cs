@@ -23,7 +23,7 @@ public sealed class AutoStart : IAutoStart
         this.runKey = runKey ?? RunKey;
         this.agentPath = agentPath ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library", "LaunchAgents", "org.holdspeak.app.plist");
     }
-    public static IAutoStart Create() => new AutoStart(Environment.ProcessPath ?? throw new InvalidOperationException("无法确定程序路径。"), AppPaths.Directory);
+    public static IAutoStart Create() => new AutoStart(Environment.ProcessPath ?? throw new InvalidOperationException(L.T("无法确定程序路径。")), AppPaths.Directory);
     public string[] Arguments => [executable, "--autostart", "--config-dir", configuration];
     public string WindowsCommand => string.Join(" ", Arguments.Select(QuoteWindowsArgument));
     public static string QuoteWindowsArgument(string argument)
@@ -61,7 +61,7 @@ public sealed class AutoStart : IAutoStart
     public void SetEnabled(bool enabled)
     {
         if (enabled && (!File.Exists(executable) || Path.GetFileNameWithoutExtension(executable).Equals("dotnet", StringComparison.OrdinalIgnoreCase)))
-            throw new InvalidOperationException("请使用发布包中的程序设置开机自启动。");
+            throw new InvalidOperationException(L.T("请使用发布包中的程序设置开机自启动。"));
         if (OperatingSystem.IsWindows())
         {
             using var run = Registry.CurrentUser.CreateSubKey(runKey, true);
@@ -78,6 +78,6 @@ public sealed class AutoStart : IAutoStart
             finally { if (File.Exists(temporary)) File.Delete(temporary); }
             return;
         }
-        throw new PlatformNotSupportedException("当前系统不支持开机自启动。");
+        throw new PlatformNotSupportedException(L.T("当前系统不支持开机自启动。"));
     }
 }

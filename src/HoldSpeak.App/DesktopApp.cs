@@ -54,10 +54,10 @@ public sealed class DesktopApp : Application
             // Leaving MainWindow unset prevents the lifetime from showing settings on login.
             desktop.MainWindow = Program.AutoStarted ? null : window;
             var menu = new NativeMenu();
-            var show = new NativeMenuItem("打开左键说"); show.Click += (_, _) => { window.Show(); window.Activate(); }; menu.Add(show);
-            var pause = new NativeMenuItem("启用／暂停"); pause.Click += async (_, _) => await window.ToggleAsync(); menu.Add(pause);
-            var quit = new NativeMenuItem("退出"); quit.Click += async (_, _) => { await window.ShutdownAsync(); desktop.Shutdown(); }; menu.Add(quit);
-            tray = new TrayIcon { ToolTipText = "左键说 · 按住左键说话", Menu = menu, Icon = Brand.Icon() };
+            var show = new NativeMenuItem(L.T("打开左键说")); show.Click += (_, _) => { window.Show(); window.Activate(); }; menu.Add(show);
+            var pause = new NativeMenuItem(L.T("启用／暂停")); pause.Click += async (_, _) => await window.ToggleAsync(); menu.Add(pause);
+            var quit = new NativeMenuItem(L.T("退出")); quit.Click += async (_, _) => { await window.ShutdownAsync(); desktop.Shutdown(); }; menu.Add(quit);
+            tray = new TrayIcon { ToolTipText = L.T("左键说 · 按住左键说话"), Menu = menu, Icon = Brand.Icon() };
             tray.Clicked += (_, _) => Dispatcher.UIThread.Post(() => { window.Show(); window.Activate(); });
             TrayIcon.SetIcons(this, new TrayIcons { tray });
             window.Closing += (_, e) => { if (!window.IsShuttingDown) { e.Cancel = true; window.Hide(); } };

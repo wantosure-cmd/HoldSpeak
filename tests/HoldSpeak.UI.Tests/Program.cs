@@ -16,6 +16,7 @@ string artifacts = Path.GetFullPath(Path.Combine("artifacts", "ui")); Directory.
 string configuration = Path.Combine(artifacts, "config", "settings.json"); if (File.Exists(configuration)) File.Delete(configuration);
 if (File.Exists(configuration + ".bak")) File.Delete(configuration + ".bak");
 Environment.SetEnvironmentVariable("HOLDSPEAK_CONFIG_DIR", Path.Combine(artifacts, "config"));
+L.SavePreference("zh-CN"); L.ReloadPreference();
 AppBuilder.Configure<DesktopApp>().UseHeadless(new() { UseHeadlessDrawing = false }).UseSkia().SetupWithoutStarting();
 Brand.Export(Path.GetFullPath("branding"));
 ApplicationOption[] applicationOptions = [new("test.exe", "Test application"), new("TEST.exe", "Test duplicate instance"), new("chrome.exe", "Chrome")];
@@ -221,7 +222,7 @@ var fixedPicker = routingWindow.GetVisualDescendants().OfType<ComboBox>().Single
 fixedPicker.SelectedIndex = Array.FindIndex(routingSettings.Profiles, p => p.Id == "ime-sogou"); Pump();
 if (ConfigurationStore.Parse(File.ReadAllText(configuration)).DefaultProfileId != "ime-sogou" || routingKeys.Text != "F3") throw new Exception("Fixed selection and editor do not refer to the same profile");
 routingTabs.SelectedIndex = 0; Pump();
-if (routingWindow.GetVisualDescendants().OfType<ComboBox>().Any()) throw new Exception("Regular page still has conflicting shortcut selectors");
+if (routingWindow.GetVisualDescendants().OfType<ComboBox>().Any(c => c.Name != "LanguagePicker")) throw new Exception("Regular page still has conflicting shortcut selectors");
 routingWindow.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, "保存设置")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Pump();
 if (ConfigurationStore.Parse(File.ReadAllText(configuration)).DefaultProfileId != "ime-sogou") throw new Exception("Basic settings overrode fixed selection");
 routingTabs.SelectedIndex = 1; routingWindow.Width = 900; routingWindow.Height = 700; Pump();
@@ -269,7 +270,66 @@ reopened.Width = 900; reopened.Height = 700; Pump();
 using (var frame = reopened.CaptureRenderedFrame() ?? throw new Exception("No startup frame")) frame.Save(Path.Combine(artifacts, "autostart-900.png"));
 Drive(reopened.ShutdownAsync()); reopened.Close();
 CheckAutoStartRegistration();
+CheckLanguages();
 Console.WriteLine("PASS auto startup opt-in, persistence, pause independence, disable, write failure rollback, native registration roundtrip and 5-tab UI regressions"); return 0;
+void CheckLanguages()
+{
+    string languagePath = Path.Combine(artifacts, "config", "language.json");
+    using var stream = typeof(L).Assembly.GetManifestResourceStream("HoldSpeak.App.Translations.json")!;
+    var resources = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string[]>>(stream)!;
+    string[] Fields(string text) => System.Text.RegularExpressions.Regex.Matches(text, @"\{\d+}").Select(m => m.Value).Order().ToArray();
+    foreach (var (key, values) in resources)
+        if (values.Length != 3 || values.Any(v => string.IsNullOrWhiteSpace(v) || !Fields(v).SequenceEqual(Fields(key))))
+            throw new Exception("Missing translation or mismatched placeholders: " + key);
+    var before = File.ReadAllText(configuration);
+    foreach (var language in L.Languages)
+    {
+        L.SavePreference(language.Code); L.ReloadPreference();
+        var localized = CreateWindow(() => new LifecyclePlatform()); localized.Width = 900; localized.Height = 700;
+        localized.Show(); Pump();
+        if (localized.Title != L.T("左键说 · 按住左键说话")) throw new Exception("Localized title missing");
+        var localizedTabs = localized.GetVisualDescendants().OfType<TabControl>().Single();
+        for (int i = 0; i < 5; i++)
+        {
+            localizedTabs.SelectedIndex = i; Pump();
+            using var frame = localized.CaptureRenderedFrame() ?? throw new Exception("No localized frame");
+            frame.Save(Path.Combine(artifacts, $"language-{language.Code}-{i}.png"));
+            if (i is 0 or 1)
+            {
+                string caption = L.T(i == 0 ? "保存设置" : "保存语音配置");
+                var button = localized.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, caption));
+                var point = button.TranslatePoint(new Point(0, 0), localized);
+                if (point == null || point.Value.Y < 0 || point.Value.Y + button.Bounds.Height > 680)
+                    throw new Exception("Localized save button clipped: " + language.Code);
+            }
+        }
+        localizedTabs.SelectedIndex = 3; Pump();
+        var jsonEditor = localized.GetVisualDescendants().OfType<TextBox>().Single(t => t.AcceptsReturn && !t.IsReadOnly);
+        jsonEditor.Text = "{\"holdMs\":1}";
+        localized.GetVisualDescendants().OfType<Button>().Single(b => Equals(b.Content, L.T("校验并应用"))).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Pump();
+        if (!localized.GetVisualDescendants().OfType<TextBlock>().Any(t => t.Text == L.T("配置无效：") + L.T("长按、移动容差或探测超时超出允许范围。")))
+            throw new Exception("Validation detail not localized: " + language.Code);
+        if (L.Message("快捷键已发送 · 321 ms · 松开鼠标结束") != L.F("快捷键已发送 · {0} ms · 松开鼠标结束", "321") ||
+            L.Message("前台 my-game.exe 在黑名单中，本次不触发语音") != L.F("前台 {0} 在黑名单中，本次不触发语音", "my-game.exe"))
+            throw new Exception("Dynamic status not localized: " + language.Code);
+        localizedTabs.SelectedIndex = 0; Pump();
+        var picker = localized.GetVisualDescendants().OfType<ComboBox>().Single(c => c.Name == "LanguagePicker");
+        var next = L.Languages[(Array.IndexOf(L.Languages.ToArray(), language) + 1) % L.Languages.Count];
+        picker.SelectedItem = next; Pump();
+        if (L.CurrentLanguage != language.Code || System.Text.Json.JsonSerializer.Deserialize<string>(File.ReadAllText(languagePath)) != next.Code)
+            throw new Exception("Language change not saved or applied prematurely");
+        if (File.ReadAllText(configuration) != before) throw new Exception("Language selection changed voice settings");
+        Drive(localized.ShutdownAsync()); localized.Close();
+        L.ReloadPreference();
+        if (L.CurrentLanguage != next.Code) throw new Exception("Saved language not restored");
+    }
+    File.WriteAllText(languagePath, "not json"); L.ReloadPreference();
+    if (L.CurrentLanguage != "zh-CN") throw new Exception("Corrupt preference did not fall back safely");
+    File.WriteAllText(languagePath, "\"unknown\""); L.ReloadPreference();
+    if (L.CurrentLanguage != "zh-CN") throw new Exception("Unknown language did not fall back safely");
+    L.SavePreference("zh-CN"); L.ReloadPreference();
+    Console.WriteLine($"PASS {L.Languages.Count} languages, {resources.Count} translated messages, placeholder integrity, 20 rendered pages, compact layout, validation errors, dynamic statuses, preference persistence and settings isolation");
+}
 void Refresh()
 {
     refreshApps.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));

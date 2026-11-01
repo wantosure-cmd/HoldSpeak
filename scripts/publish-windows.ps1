@@ -10,7 +10,7 @@ $outputPath = if ($OutputDirectory) { [System.IO.Path]::GetFullPath($OutputDirec
 & $sdk publish (Join-Path $repoPath 'src/HoldSpeak.App/HoldSpeak.App.csproj') -c Release -r $Runtime --self-contained true -p:HoldSpeakPlatform=Windows --disable-build-servers -m:1 -o $outputPath
 if ($LASTEXITCODE -ne 0) { throw 'Publish failed' }
 Copy-Item -LiteralPath (Join-Path $repoPath 'scripts/Launch-HoldSpeak.cmd') -Destination $outputPath
-Copy-Item -LiteralPath (Join-Path $repoPath 'README.md'),(Join-Path $repoPath 'LICENSE'),(Join-Path $repoPath 'THIRD-PARTY-NOTICES.md') -Destination $outputPath
+Copy-Item -LiteralPath (Join-Path $repoPath 'README.md'),(Join-Path $repoPath 'README.en.md'),(Join-Path $repoPath 'LICENSE'),(Join-Path $repoPath 'THIRD-PARTY-NOTICES.md') -Destination $outputPath
 Copy-Item -LiteralPath (Join-Path $repoPath 'ATTRIBUTION.md') -Destination $outputPath
 Copy-Item -LiteralPath (Join-Path $repoPath 'profiles') -Destination $outputPath -Recurse -Force
 Write-Output $outputPath
