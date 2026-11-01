@@ -1,179 +1,25 @@
 # 左键说 · HoldSpeak
 
-[English](README.en.md) | 简体中文
+简体中文 | [English](README.en.md)
+
+## 功能说明
+
+语音输入时，长按鼠标左键通常比反复寻找并按住 Ctrl、Alt 等组合快捷键更顺手。左键说把鼠标左键长按映射成已有语音输入软件的快捷键：按住说话，松开结束。你可以为不同输入法设置快捷键，也可以固定使用一套快捷键。
+
+左键说负责发送快捷键；录音、语音识别和文字回填由你选择的语音输入软件完成。请先确认原软件支持快捷键，并在左键说中设置一致的启动方式和按键。
 
 ## 安装与使用
 
-1. 从 [发布页面](https://github.com/wantosure-cmd/HoldSpeak/releases) 下载 Windows x64 便携版，解压并运行 `HoldSpeak.App.exe`。
-2. 先配置好语音输入软件。在“语音快捷键”中选择固定快捷键或跟随输入法，设置与原软件一致的按键并保存。
-3. 点击输入位置，按住鼠标左键说话，松开结束；文字由原语音软件回填到当前焦点。
-4. 如果游戏中误触发，在“应用规则”选择正在运行的游戏并加入黑名单；可在列表中直接移除。
-5. 关闭窗口会隐藏到托盘；从托盘菜单退出。如需开机启动，在常规设置中开启。
+1. 在 [发布页面](https://github.com/wantosure-cmd/HoldSpeak/releases) 下载 Windows 便携版，解压后运行 `HoldSpeak.App.exe`。
+2. 在“语音快捷键”选择固定使用一个快捷键，或跟随当前输入法；设置与原语音软件一致的快捷键并保存。
+3. 点击输入位置，按住鼠标左键说话，松开结束。
+4. 如游戏中误触发，可在“应用规则”选择游戏并加入黑名单；列表中的项目可以直接移除。
+5. 关闭窗口会隐藏到系统托盘；需要完全退出时，使用托盘菜单。开机自启动可在“常规设置”中开启。
 
-以下截图使用测试配置，程序名和按键仅供演示。
+下图为测试配置，显示的程序名和快捷键仅供演示。
 
 ![常规设置](docs/images/general-zh.png)
 ![语音快捷键](docs/images/shortcuts-zh.png)
 ![应用黑名单](docs/images/blacklist-zh.png)
 
-在任意位置长按鼠标左键，用已有语音软件的快捷键开始说话；松开鼠标结束。文字落在哪里，由原语音输入法和当前键盘焦点决定。
-
-Windows / macOS，C# + .NET 10 + Avalonia，MIT 开源。
-
-## 当前状态
-
-这是开发中的 0.1.24 alpha，尚未完成跨平台发布验收。
-
-许可采用 [MIT](LICENSE)：允许使用、修改、商用和分发，分发软件副本或实质性部分时必须保留原版权声明和许可声明。项目来源为“左键说 / HoldSpeak”，推荐在文档或关于页面注明来源。MIT 本身不强制界面显示项目名或链接；详见 [来源标注说明](ATTRIBUTION.md)。
-
-长按时间滑块调整后立即保存并生效，暂停／启用和重启均保留。300ms 是本工具发送快捷键前的等待时间，不是语音输入法窗口显示的总时间。全局模式的诊断报告记录 `triggerLatencyMs`（按下到快捷键发送完成）和 `dispatchLatencyMs`（快捷键发送过程，包含恢复进程确认），用于定位额外等待；不记录语音内容。
-
-新版采用 Ant Design 设计语言的浅色桌面界面与原创鼠标左键 Logo，设计说明见 [docs/design.md](docs/design.md)。现有 Avalonia 原生架构保持兼容。
-
-- 已实现长按、移动取消、双击保护、松开结束和最长保持时间；目标确认与焦点切换结束仅用于可选的旧检测模式。
-- 已实现保持、切换、分别开始／结束三种快捷键协议，以及多个语音配置、应用禁用和按当前输入法自动切换。
-- Windows：Win32 Hook、SendInput、UI Automation；macOS：Event Tap、CGEvent、AX Accessibility。
-- 输入框探测隔离到子进程；恢复进程在主程序失去心跳或退出后尝试释放登记的键。
-- 恢复进程失联会暂停长按；状态区圆钮开关可重新启用并重建平台监听和恢复进程。绿色为开启，灰色为暂停。
-- 锁定、断开、休眠时暂停并尝试释放；解锁／唤醒／会话返回时重建原来启用的监听。主动暂停不会自动开启。Windows 鼠标钩子健康检查失效也会请求重建；Mac 接入会话返回和 Event Tap 停用恢复请求。
-- 正常启动自动启用全局长按，不判断当前位置是否为输入框，也不检查密码／只读／按钮；启动前与说话期间不做目标复核，不因切换焦点／应用／窗口中断。
-- 默认 `triggerAnywhere: true`，无需手动调整。旧的输入框检测代码保留供调试兼容使用；仅在高级 JSON 明确设置为 false 时启用，宽松与严格规则仅作用于旧检测模式。
-- 不录音、不调用识别 API、不读取输入正文、不发送遥测。语音识别和结果回填由原语音软件负责。
-
-**Mac 代码可构建，不等于已在 Mac 上验证。** 用户已确认当前 Chrome 和 Codex 输入框能调用微信输入法语音；随后报告 Codex 持续说话时目标中断。0.1.12 修复持续复核依赖初始鼠标位置的问题，具体中断仍待新版实测。其他应用与输入位置需逐项验收，不能保证覆盖所有自绘、富文本或远程输入框。
-
-## 语音快捷键（0.1.24）
-
-- **固定使用一个快捷键**：在“语音快捷键”选择语音软件并直接编辑它的快捷键，选择立即保存；始终使用此处选定的软件，不随输入法切换；旧配置升级后默认使用此模式。
-- **跟随当前输入法**：读取系统当前活动输入法，不根据后台进程判断。微信初始配置为 Ctrl + Win 长按；搜狗初始配置为 F2 按一下开始、再按一下结束，均按本机用户确认设置。用户可在“语音快捷键”页编辑，刷新输入法不会覆盖已保存的快捷键。
-- Windows 用前台键盘布局结合 TSF 活动配置及稳定标识区分输入法。本机已验证搜狗切换到微信，两者键盘布局相同也可区分；读取耗时 20 次预热样本中位约 1.4ms，此数字不代表语音窗口弹出速度。
-- 达到长按阈值前重新选择当前输入法；开始后固定本次会话的配置，鼠标松开用同一配置结束。无法确认或没有关联配置时不发送快捷键，并显示提示。新输入法在同一页选择后填写快捷键，保存即建立关联。
-- macOS 接入系统当前输入源与输入源列表，需自行关联实际语音快捷键；不套用 Windows 预设。目前只有交叉构建证据，没有 Mac 实机验收。
-## 开机自启动（0.1.20）
-
-“常规设置”提供开机自启动圆钮开关，开启／关闭立即写入系统，无需点击保存。默认不自动创建启动项。开启后，下次登录当前用户账户时在托盘／菜单栏运行，并自动启用长按说话；可从托盘打开设置或退出。主动暂停当前监听不关闭自启动，下次登录会重新启用监听。
-
-Windows 写入当前用户 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` 的 `HoldSpeak` 项，不需要管理员权限。Mac 写入当前用户 `~/Library/LaunchAgents/org.holdspeak.app.plist`，下次登录加载；Mac 实机仍待验证。两个平台均记录当前发布程序的完整路径与当前配置目录，路径中的空格和中文会保留。
-
-请先把便携程序放在固定位置再开启。移动或删除程序后，关闭再开启可更新登记路径；旧路径不能自动找到新位置。自启动状态从系统读取，不包含在设置 JSON 中，导入语音配置不会创建启动项。系统策略、安全软件或 Windows 任务管理器禁用启动项仍可能阻止启动，实际登录耗时由系统安排。
-## 开发运行
-
-需要 .NET 10 SDK。
-
-```sh
-dotnet run --project src/HoldSpeak.App/HoldSpeak.App.csproj
-```
-
-Windows 默认配置为保持 `LCtrl + LWin`。首次运行检测到微信输入法时显示其配置名称。Mac 默认不设置快捷键，必须填写原语音软件实际支持的入口；不直接将 Win 键映射为 Command。
-
-所有快捷键选择和编辑集中在“语音快捷键”页：固定模式选语音软件，跟随模式选要编辑的输入法。固定软件选择及模式立即保存，按键修改点击底部“保存语音配置”；常规设置不再包含或覆盖快捷键选择。默认只显示当前平台，独立结束键仅在分别开始／结束模式显示，其他平台与自定义配置管理收进“更多设置”。旧配置保持兼容，多输入法曾共享同一配置时，编辑其中一个会自动分开保存，避免影响其他输入法。“应用规则”只控制应用是否启用，“高级配置”仍可编辑完整 JSON。
-
-快捷键用逗号分隔，例如 `LCtrl,LWin`、`LCtrl,1` 或 `Command,A`。支持 A–Z、0–9、空格、回车、Tab、方向与导航键；Windows 支持 F1–F24，Mac 支持 F1–F20。Mac 字母按 US 物理键位发送；Fn 暂不支持。保存时保留上一份有效配置为 `settings.json.bak`，主配置损坏时加载备份并提示，原文件不会被自动覆盖。
-
-“诊断”的输入框检查会暂停长按，给你 3 秒点击目标输入框，再显示可编辑判断、应用标识和拒绝原因。检查不发送语音快捷键；结束后需要主动重新启用。
-
-出现提前结束或无法触发时，可在“诊断”点击“导出诊断报告”，保留最近 80 条状态、应用标识、控件类型和实际探测失败原因。报告不包含状态消息全文、配置名称、输入正文、网址、窗口标题或原始窗口／控件 ID。导出只保存到你选择的本地文件，不自动发送。
-
-在“语音软件”页可点击当前平台的“录入”按钮。先松开所有键，再按一个组合键并全部松开，然后点击“保存语音配置”。录入会暂停长按，不自动恢复；Esc、切页、失去焦点或 10 秒超时会取消并保留原值。这里只接收设置窗口的键盘事件，不安装全局键盘记录器；原语音软件仍可能响应自己的全局快捷键。其他平台的键可手动填写；Mac 采用物理键位，当前不支持的右侧 Control／Option／Shift 不会自动替换成左侧键。
-
-进入“应用规则”会自动加载正在运行的应用列表；选择程序后点击“加入黑名单”即保存禁用规则，无需查找安装目录。也可点击“刷新应用列表”更新。Windows 按可执行程序名（如 game.exe）匹配全部同名实例，不绑定 PID、版本号或安装目录；升级后程序名不变则规则继续有效，程序名改变需重新添加。Mac 按 Bundle ID 匹配。列表中的同名实例合并显示；重复添加会更新已有规则。已添加程序直接显示在黑名单列表，每项提供“移除”，点击后立即保存并恢复使用。列表为空时显示添加指引；新增后滚动到对应项目。添加区固定在底部，手动输入收进展开区。旧的启用规则显示为“未禁用”，可直接禁用或移除。Windows 列出当前会话有主窗口的进程；Mac 列出具有 Bundle ID 的普通／附件应用。列表只是刷新时的快照，部分后台进程或自定义宿主不会列出，可通过诊断或手动填写补充。枚举只读取应用名、进程名或 Bundle ID，不读取窗口标题、命令行、网址或正文，不写入诊断报告。
-
-黑名单只在长按达到阈值、准备发送快捷键时读取当前前台应用；不因黑名单程序仍在后台运行而全局禁用。鼠标刚按下时不沿用旧前台窗口判断，避免从游戏直接点击其他软件时误拦截。开始后仍使用原会话配置结束，不依据输入法浮层或后续焦点变化提前结束。
-
-Windows 应用标识使用进程名（例如 `chrome.exe`）；Mac 使用 Bundle ID。应用规则决定该应用中是否启用；默认全局模式不检查输入框类型。
-
-配置默认写入用户应用数据目录下的 `HoldSpeak/settings.json`。开发或便携运行可设置 `HOLDSPEAK_CONFIG_DIR` 指向专用目录。该目录还保存单实例锁；启动第二实例返回退出码 2。
-
-macOS 需要辅助功能及输入监控权限；设置后重新启动。Mac 发布包使用固定 Bundle ID `org.holdspeak.app`。未签名开发包的权限稳定性和正式签名包应分别测试。
-
-Mac 适配会为明确声明 `AXManualAccessibility` 可写的应用启用辅助功能树（Electron 官方接口）。首次启用后控件树可能异步出现，诊断可提示 `accessibility_enabled_retry`，此时重新检查或再次长按。此路径尚未实机验收。
-
-## 测试
-
-```sh
-dotnet run --project tests/HoldSpeak.Core.Tests/HoldSpeak.Core.Tests.csproj
-dotnet run --project tests/HoldSpeak.UI.Tests/HoldSpeak.UI.Tests.csproj
-```
-
-UI 测试在无界面渲染环境检查设置界面，截图输出到 `artifacts/ui/`。它不能证明操作系统 Hook、权限或真实语音录音有效。
-
-Windows 的真实桌面控件测试：
-
-```powershell
-dotnet run --project tests/HoldSpeak.Windows.Tests/HoldSpeak.Windows.Tests.csproj
-```
-
-需要交互式桌面；测试会短暂显示普通、只读和密码输入框，不发送语音开始组合键。无桌面沙箱中无法验证前台焦点。
-
-浏览器识别测试使用独立配置和本地固定网页，覆盖地址栏、普通／多行／富文本、只读、密码、按钮以及鼠标位置与焦点不一致；不会发送语音快捷键，也不操作现有标签页。需要交互式 Windows 桌面：
-
-```powershell
-dotnet run --project tests/HoldSpeak.Browser.Tests/HoldSpeak.Browser.Tests.csproj
-# 可传入 Edge 或另一安装位置的 Chromium 浏览器路径
-dotnet run --project tests/HoldSpeak.Browser.Tests/HoldSpeak.Browser.Tests.csproj -- 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
-```
-
-结果与独立测试配置位于 `artifacts/browser-tests/`，不随软件包分发。识别通过不能证明语音录音和回填有效。
-
-Mac 原生接口测试（必须在真实 macOS 运行）：
-
-仅检查 Mac 按键事件规划时，可在 Windows 或 Mac 使用 `--managed-only`，此模式不加载 macOS 原生框架：
-
-```sh
-dotnet run --project tests/HoldSpeak.Mac.Tests/HoldSpeak.Mac.Tests.csproj -- --managed-only
-```
-
-完整原生测试：
-
-```sh
-dotnet run --project tests/HoldSpeak.Mac.Tests/HoldSpeak.Mac.Tests.csproj
-```
-
-该测试在本进程的 NSWorkspace 通知中心发送模拟休眠／会话切出通知，并构造键盘事件检查原生字段；不让系统休眠、不向系统输入流发送按键。它不能替代真实 Event Tap、权限、锁屏、录音与回填验收。已接入 Mac CI，但远程 CI 尚未实际执行，本机只有编译证据。
-
-## 发布
-
-```powershell
-./scripts/publish-windows.ps1
-```
-
-```sh
-bash scripts/publish-macos.sh osx-arm64
-# Intel Mac: bash scripts/publish-macos.sh osx-x64
-```
-
-构建输出位于 `artifacts/`。macOS 脚本需要在 Mac 上运行，输出 `.app` 开发包；正式分发前需要签名、公证及真实设备验收。
-
-Windows 包可双击 `Launch-HoldSpeak.cmd` 以便携模式运行，配置保存在同目录 `data/`；直接运行 `HoldSpeak.App.exe` 则使用用户应用数据目录。正常启动自动启用；权限不足、监听冲突或平台故障时显示原因，不会假装已经启用。
-
-从不同目录启动的新版共用当前用户的输入监听锁，防止重复发送快捷键。已启用过监听的实例即使暂停也保留锁，需通过“完全退出”释放；其他实例启用时会提示冲突。锁文件保存在用户本地应用数据目录的 `HoldSpeak/runtime/`，不随便携配置迁移，不需要删除残留文件。升级前请完全退出旧版本：0.1.6 及更早版本尚未接入此锁。
-
-关闭设置窗口会隐藏到托盘／菜单栏并继续运行；通过托盘“退出”或诊断页“完全退出”结束工具。
-
-构建脚本关闭 .NET / Avalonia 的构建期遥测；应用运行没有遥测模块。
-
-## 使用边界
-
-- 多个语音软件监听同一快捷键时，工具不能定向只启动一个；请在原软件里配置不同入口。
-- 严格模式只允许明确可编辑的辅助功能节点；默认宽松模式允许未知区域，但明确不可输入时仍拒绝。专用应用适配仍在开发。
-- 密码框明确排除。控件提供者如果隐瞒安全属性，通用识别无法推断其真实内容。
-- 保持模式的释放最明确；切换模式可能与用户在原软件中的手动录音操作失去同步。
-- 界面显示“快捷键保持中”只证明发送动作，不证明原软件已开始录音。
-- 恢复进程仅释放登记的键；不能可靠关闭已启动的切换式录音。进程同时被结束、安全桌面、权限撤销等情况下不能保证释放。
-- 真实键与注入键共享系统状态。活动期间尽量避免操作键盘；真实按键会取消本次手势。
-- 识别结果异步回填的位置由原软件决定；工具不会抢回焦点或重新粘贴文字。
-- 管理员应用、远程桌面、虚拟机和安全桌面尚不作为已支持场景。
-- 系统通知和恢复进程的释放是尽力处理；通知到达过晚、安全桌面或系统冻结时，不能保证及时释放。Windows 健康检查使用自身消费的鼠标标记，连续缺失才请求重建；输入被游戏／权限拦截仍不能保证有效。真实锁屏、具体游戏和 Mac 的通知覆盖需要实测。
-
-## 项目文档
-
-- [架构与事件约束](docs/architecture.md)
-- [兼容性与验收](docs/compatibility.md)
-- [后续开发路线](docs/roadmap.md)
-- [贡献指南](CONTRIBUTING.md)
-
-## English
-
-HoldSpeak maps a stationary left-mouse hold in an editable field to an existing voice-input application's shortcut. Releasing the mouse ends the shortcut session. It does not record audio, transcribe speech, or insert the result itself.
-
-The shared C# state machine runs behind platform-specific Windows UI Automation / Win32 and macOS Accessibility / Core Graphics adapters. This is an alpha: macOS runtime behavior and named third-party applications still require real-device verification. Unknown fields are rejected rather than guessed. See the documentation for build commands, configuration and limitations.
+[贡献指南](CONTRIBUTING.md) · [兼容性与验收](docs/compatibility.md) · [更新记录](CHANGELOG.md) · [MIT 许可证](LICENSE)
