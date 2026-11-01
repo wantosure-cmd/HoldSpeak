@@ -12,7 +12,31 @@ using InputKey = Avalonia.Input.Key;
 using RawModifiers = Avalonia.Input.RawInputModifiers;
 using Modifiers = Avalonia.Input.KeyModifiers;
 
+try
+{
+    if (args.Any(a => a != "--native-autostart")) throw new ArgumentException("Unknown UI test option.");
+    return RunTests(args.Contains("--native-autostart"));
+}
+catch (Exception ex)
+{
+    // A failed assertion or denied integration operation must not invoke Windows crash UI.
+    string report = "FAIL UI test run" + Environment.NewLine + ex;
+    Console.Error.WriteLine(report);
+    try
+    {
+        string directory = Path.GetFullPath(Path.Combine("artifacts", "ui"));
+        Directory.CreateDirectory(directory);
+        File.WriteAllText(Path.Combine(directory, "failure.txt"), report);
+    }
+    catch (Exception logError) when (logError is IOException or UnauthorizedAccessException)
+    { Console.Error.WriteLine("Could not save failure report: " + logError.Message); }
+    return 1;
+}
+
+static int RunTests(bool nativeAutoStart)
+{
 string artifacts = Path.GetFullPath(Path.Combine("artifacts", "ui")); Directory.CreateDirectory(artifacts);
+if (File.Exists(Path.Combine(artifacts, "failure.txt"))) File.Delete(Path.Combine(artifacts, "failure.txt"));
 string configuration = Path.Combine(artifacts, "config", "settings.json"); if (File.Exists(configuration)) File.Delete(configuration);
 if (File.Exists(configuration + ".bak")) File.Delete(configuration + ".bak");
 Environment.SetEnvironmentVariable("HOLDSPEAK_CONFIG_DIR", Path.Combine(artifacts, "config"));
@@ -269,9 +293,9 @@ if (login.Enabled) throw new Exception("Disable login item failed");
 reopened.Width = 900; reopened.Height = 700; Pump();
 using (var frame = reopened.CaptureRenderedFrame() ?? throw new Exception("No startup frame")) frame.Save(Path.Combine(artifacts, "autostart-900.png"));
 Drive(reopened.ShutdownAsync()); reopened.Close();
-CheckAutoStartRegistration();
+CheckAutoStartRegistration(nativeAutoStart);
 CheckLanguages();
-Console.WriteLine("PASS auto startup opt-in, persistence, pause independence, disable, write failure rollback, native registration roundtrip and 5-tab UI regressions"); return 0;
+Console.WriteLine("PASS auto startup opt-in, persistence, pause independence, disable, write failure rollback, command encoding and 5-tab UI regressions"); return 0;
 void CheckLanguages()
 {
     string languagePath = Path.Combine(artifacts, "config", "language.json");
@@ -374,7 +398,7 @@ static void Drive(Task task)
 }
 static IosSwitch VoiceSwitch(MainWindow window) => window.GetVisualDescendants().OfType<IosSwitch>().Single(s => Avalonia.Automation.AutomationProperties.GetName(s) == "长按说话开关");
 static MainWindow CreateWindow(Func<IDesktopPlatform> platform, Func<ApplicationOption[]>? apps = null) => new MainWindow(platform, apps, () => [], () => null, new FakeAutoStart());
-static void CheckAutoStartRegistration()
+static void CheckAutoStartRegistration(bool includeNative)
 {
     var isolatedKey = @"Software\HoldSpeak\Tests\" + Guid.NewGuid().ToString("N");
     var service = new AutoStart(Environment.ProcessPath!, Path.Combine(Path.GetTempPath(), "左键说 & settings"), runKey: isolatedKey);
@@ -382,6 +406,11 @@ static void CheckAutoStartRegistration()
     if (!xml.Descendants("array").Single().Elements("string").Select(e => e.Value).SequenceEqual(service.Arguments)) throw new Exception("Mac arguments escaped incorrectly");
     if (AutoStart.QuoteWindowsArgument("a b\\") != "\"a b\\\\\"" || AutoStart.QuoteWindowsArgument("a\"b") != "\"a\\\"b\"") throw new Exception("Windows quoting failed");
     if (!OperatingSystem.IsWindows()) return;
+    if (!includeNative)
+    {
+        Console.WriteLine("SKIP native Windows registration; use --native-autostart to test an isolated registry key.");
+        return;
+    }
     try
     {
         if (service.IsEnabled()) throw new Exception("Test registration already exists");
@@ -391,8 +420,10 @@ static void CheckAutoStartRegistration()
         if (!service.IsEnabled() || !new AutoStart(Environment.ProcessPath!, service.Arguments[3], runKey: isolatedKey).IsEnabled()) throw new Exception("System registration not retained");
         service.SetEnabled(false);
         if (service.IsEnabled()) throw new Exception("Registration not removed");
+        Console.WriteLine("PASS native Windows registration roundtrip in isolated test key");
     }
     finally { Microsoft.Win32.Registry.CurrentUser.DeleteSubKeyTree(isolatedKey, false); }
+}
 }
 sealed class FakeAutoStart : IAutoStart
 {

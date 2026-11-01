@@ -21,7 +21,7 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       - run: dotnet run --project tests/HoldSpeak.Core.Tests/HoldSpeak.Core.Tests.csproj -c Release
-      - run: dotnet run --project tests/HoldSpeak.UI.Tests/HoldSpeak.UI.Tests.csproj -c Release
+      - run: dotnet run --project tests/HoldSpeak.UI.Tests/HoldSpeak.UI.Tests.csproj -c Release -- --native-autostart
       - if: runner.os == 'Windows'
         run: dotnet run --project tests/HoldSpeak.Mac.Tests/HoldSpeak.Mac.Tests.csproj -c Release -- --managed-only
       - if: runner.os == 'macOS'
@@ -35,3 +35,8 @@ jobs:
         with:
           name: HoldSpeak-${{ matrix.rid }}
           path: artifacts/HoldSpeak-${{ matrix.rid }}/
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: HoldSpeak-test-diagnostics-${{ matrix.rid }}
+          path: artifacts/ui/

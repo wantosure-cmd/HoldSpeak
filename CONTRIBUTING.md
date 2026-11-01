@@ -2,6 +2,8 @@
 
 使用 .NET 10 SDK。提交前执行 Core 和 UI 测试；Windows 系统适配变更还要在交互式桌面执行 Windows 测试。
 
+UI 测试默认不写系统注册表；使用 `dotnet run --project tests/HoldSpeak.UI.Tests -- --native-autostart` 可额外验证独立测试键中的原生自启动注册。CI 显式运行此项；权限不足会明确失败，不会计为通过。测试失败详情写入标准错误及 `artifacts/ui/failure.txt`，CI 会保留失败时的诊断附件。
+
 翻译说明见 [界面翻译](docs/localization.md)。新增或修改界面文字时，同时维护英文、日文、韩文资源和占位符。
 
 应用适配须提供目标应用和系统版本、具体输入位置、可编辑与不可编辑反例，以及完整录音／回填验证。不要提交输入正文、密码、窗口标题、网页地址或私人配置。
