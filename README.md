@@ -1,5 +1,21 @@
 # 左键说 · HoldSpeak
 
+[English](README.en.md) | 简体中文
+
+## 安装与使用
+
+1. 从 [发布页面](https://github.com/wantosure-cmd/HoldSpeak/releases) 下载 Windows x64 便携版，解压并运行 `HoldSpeak.App.exe`。
+2. 先配置好语音输入软件。在“语音快捷键”中选择固定快捷键或跟随输入法，设置与原软件一致的按键并保存。
+3. 点击输入位置，按住鼠标左键说话，松开结束；文字由原语音软件回填到当前焦点。
+4. 如果游戏中误触发，在“应用规则”选择正在运行的游戏并加入黑名单；可在列表中直接移除。
+5. 关闭窗口会隐藏到托盘；从托盘菜单退出。如需开机启动，在常规设置中开启。
+
+以下截图使用测试配置，程序名和按键仅供演示。
+
+![常规设置](docs/images/general-zh.png)
+![语音快捷键](docs/images/shortcuts-zh.png)
+![应用黑名单](docs/images/blacklist-zh.png)
+
 在任意位置长按鼠标左键，用已有语音软件的快捷键开始说话；松开鼠标结束。文字落在哪里，由原语音输入法和当前键盘焦点决定。
 
 Windows / macOS，C# + .NET 10 + Avalonia，MIT 开源。
